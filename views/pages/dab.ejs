@@ -1,0 +1,26 @@
+<%- include("../partials/header", { title: "DAB - Distributeur" }) %>
+<%- include("../partials/nav") %>
+
+<main class="container main">
+  <section class="card">
+    <h1>🏧 Distributeur Automatique</h1>
+    <p>Entrez un montant pour voir sa répartition en coupures.</p>
+
+    <form action="/dab" method="GET" class="form form--inline">
+      <div class="form__group">
+        <label for="montant">Montant (€)</label>
+        <input type="number" id="montant" name="montant" min="0.01" step="0.01" placeholder="Ex: 137.50" required />
+      </div>
+      <div class="form__group">
+        <label for="devise">Devise</label>
+        <select id="devise" name="devise" class="form__select">
+          <option value="euros">Euros €</option>
+          <option value="dollars">Dollars $</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn--primary">Calculer</button>
+    </form>
+  </section>
+</main>
+
+<%- include("../partials/footer") %>

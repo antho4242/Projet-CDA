@@ -1,8 +1,10 @@
 const express = require("express");
-const path = require("path");
+const path    = require("path");
 const session = require("express-session");
 
-const app = express();
+const { calculerCoupures } = require("./modules/dab");
+
+const app  = express();
 const PORT = 8080;
 
 app.use(express.static(path.join(__dirname, "public")));
@@ -17,55 +19,74 @@ app.use(session({
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// Rendre certaines infos dispo dans toutes les vues
 app.use((req, res, next) => {
   res.locals.isAdmin = req.session.isAdmin || false;
-  res.locals.login = req.session.login || null;
+  res.locals.login   = req.session.login   || null;
   next();
 });
 
-// Page d'accueil
+// --- Accueil ---
 app.get("/", (req, res) => {
   res.render("pages/index", { title: "Accueil" });
 });
 
-// Connexion
+// --- Auth ---
 app.get("/auth/login", (req, res) => {
-  if (req.session.isAdmin) {
-    return res.redirect("/");
-  }
+  if (req.session.isAdmin) return res.redirect("/");
   res.render("pages/login", { title: "Connexion", error: null });
 });
 
 app.post("/auth/login", (req, res) => {
-  const login = req.body.login;
-  const password = req.body.password;
-
+  const { login, password } = req.body;
   if (login === "admin" && password === "admin") {
     req.session.isAdmin = true;
-    req.session.login = login;
+    req.session.login   = login;
     return res.redirect("/");
   }
-
-  res.render("pages/login", {
-    title: "Connexion",
-    error: "Identifiants incorrects"
-  });
+  res.render("pages/login", { title: "Connexion", error: "Identifiants incorrects" });
 });
 
-// Déconnexion
 app.post("/auth/logout", (req, res) => {
   req.session.destroy(() => {
     res.redirect("/");
   });
+}); 
+
+//  DAB formulaire
+app.get("/dab", (req, res) => {
+  if (!req.query.montant) {
+    return res.render("pages/dab", { title: "DAB" });
+  }
+  const montant = parseFloat(req.query.montant);
+  const devise  = req.query.devise || "euros";
+  res.redirect(`/dab/${devise}/${montant}`);
 });
 
-// Route vers la page erreur volontaire
+// DAB route
+app.get("/dab/:devise/:montant", (req, res) => {
+  const montant = parseFloat(req.params.montant);
+  const devise  = req.params.devise;
+
+  if (isNaN(montant) || montant <= 0) {
+    return res.render("pages/dab-result", {
+      title: "DAB - Résultat",
+      montant: req.params.montant,
+      devise,
+      repartition: [],
+      plusPetite: null
+    });
+  }
+
+  const { repartition, plusPetite } = calculerCoupures(montant, devise);
+  res.render("pages/dab-result", { title: `DAB - ${montant} ${devise}`, montant, devise, repartition, plusPetite });
+});
+
+//Erreur volontaire
 app.get("/erreur", (req, res) => {
   res.render("pages/error", { title: "Erreur" });
 });
 
-// 404
+//  404 
 app.use((req, res) => {
   res.status(404).render("pages/404", { title: "Page introuvable" });
 });

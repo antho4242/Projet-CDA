@@ -1,0 +1,37 @@
+<%- include("../partials/header", { title: "DAB - Résultat" }) %>
+<%- include("../partials/nav") %>
+
+<main class="container main">
+  <section class="card">
+    <h1>🏧 Répartition pour <%= montant %> <%= devise %></h1>
+
+    <% if (repartition.length === 0) { %>
+      <div class="alert alert--error">Montant invalide ou nul.</div>
+    <% } else { %>
+
+      <div class="dab-grid">
+        <% repartition.forEach(item => { %>
+          <div class="dab-item <% if (item.coupure === plusPetite) { %>dab-item--highlight<% } %>">
+            <span class="dab-item__val"><%= item.coupure %></span>
+            <span class="dab-item__unit"><%= devise === 'euros' ? '€' : '$' %></span>
+            <span class="dab-item__qty">× <%= item.quantite %></span>
+            <% if (item.coupure === plusPetite) { %>
+              <span class="dab-item__badge">Plus petite coupure</span>
+            <% } %>
+          </div>
+        <% }) %>
+      </div>
+
+      <div class="dab-summary">
+        <p>💡 Plus petite coupure utilisée : <strong><%= plusPetite %> <%= devise === 'euros' ? '€' : '$' %></strong></p>
+      </div>
+
+    <% } %>
+
+    <a href="/dab" class="btn btn--primary" style="margin-top:20px; display:inline-block;">
+      ← Nouveau calcul
+    </a>
+  </section>
+</main>
+
+<%- include("../partials/footer") %>
