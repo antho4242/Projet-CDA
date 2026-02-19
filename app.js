@@ -5,35 +5,59 @@ const session = require("express-session");
 const app = express();
 const PORT = 8080;
 
-// Fichiers statiques (CSS, images, JS)
 app.use(express.static(path.join(__dirname, "public")));
-
-// Lecture des données envoyées en POST
 app.use(express.urlencoded({ extended: true }));
 
-// Configuration des sessions
-app.use(
-  session({
-    secret: "monSuperSecretChangeLe",
-    resave: false,
-    saveUninitialized: false,
-  })
-);
+app.use(session({
+  secret: "monSuperSecretChangeLe",
+  resave: false,
+  saveUninitialized: false
+}));
 
-// Moteur de templates
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// Rendre la session accessible dans les vues
+// Rendre certaines infos dispo dans toutes les vues
 app.use((req, res, next) => {
   res.locals.isAdmin = req.session.isAdmin || false;
   res.locals.login = req.session.login || null;
   next();
 });
 
-// Accueil
+// Page d'accueil
 app.get("/", (req, res) => {
   res.render("pages/index", { title: "Accueil" });
+});
+
+// Connexion
+app.get("/auth/login", (req, res) => {
+  if (req.session.isAdmin) {
+    return res.redirect("/");
+  }
+  res.render("pages/login", { title: "Connexion", error: null });
+});
+
+app.post("/auth/login", (req, res) => {
+  const login = req.body.login;
+  const password = req.body.password;
+
+  if (login === "admin" && password === "admin") {
+    req.session.isAdmin = true;
+    req.session.login = login;
+    return res.redirect("/");
+  }
+
+  res.render("pages/login", {
+    title: "Connexion",
+    error: "Identifiants incorrects"
+  });
+});
+
+// Déconnexion
+app.post("/auth/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.redirect("/");
+  });
 });
 
 // 404
@@ -41,7 +65,6 @@ app.use((req, res) => {
   res.status(404).send("Page non trouvée");
 });
 
-// Démarrage du serveur
 app.listen(PORT, () => {
   console.log(`Serveur lancé sur http://localhost:${PORT}`);
 });

@@ -69,3 +69,34 @@ p { color: var(--muted); line-height: 1.6; }
   color: var(--muted);
   background: rgba(11,18,32,0.5);
 }
+
+/* --- Formulaire login --- */
+.card--narrow { max-width: 420px; margin: 40px auto; }
+
+.form { display: flex; flex-direction: column; gap: 18px; margin-top: 20px; }
+.form__group { display: flex; flex-direction: column; gap: 6px; }
+.form__group label { font-size: 14px; color: var(--muted); }
+.form__group input {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-size: 15px;
+  outline: none;
+}
+.form__group input:focus { border-color: var(--accent); }
+
+.btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  padding: 10px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.btn--primary:hover { opacity: 0.88; }
+
+/* --- Alertes --- */
+.alert { padding: 10px 14px; border-radius: 10px; font-size: 14px; }
+.alert--error { background: rgba(255,77,109,0.15); border: 1px solid rgba(255,77,109,0.35); color: #ff4d6d; }

@@ -1,0 +1,26 @@
+<%- include("../partials/header", { title: "Connexion Admin" }) %>
+<%- include("../partials/nav") %>
+
+<main class="container main">
+  <section class="card card--narrow">
+    <h1>🔐 Connexion Admin</h1>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert alert--error"><%= error %></div>
+    <% } %>
+
+    <form action="/auth/login" method="POST" class="form">
+      <div class="form__group">
+        <label for="login">Identifiant</label>
+        <input type="text" id="login" name="login" placeholder="admin" required />
+      </div>
+      <div class="form__group">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" name="password" placeholder="••••••" required />
+      </div>
+      <button type="submit" class="btn btn--primary">Se connecter</button>
+    </form>
+  </section>
+</main>
+
+<%- include("../partials/footer") %>
