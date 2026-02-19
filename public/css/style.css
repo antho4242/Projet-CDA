@@ -210,3 +210,20 @@ p { color: var(--muted); line-height: 1.6; }
 .produit-detail__info h1 { margin: 6px 0 16px; }
 .produit-detail__prix { font-size: 36px; font-weight: 900; color: var(--accent); margin: 16px 0; }
 .produit-detail__actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.card--narrow { max-width: 480px; margin: 40px auto; }
+
+.role-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  margin-left: 6px;
+  font-weight: 600;
+}
+.role-badge--gestionnaire { background: rgba(124,92,255,0.25); color: var(--accent); }
+.role-badge--client { background: rgba(255,77,109,0.2); color: var(--danger); }

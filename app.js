@@ -1,18 +1,19 @@
 const express = require("express");
-const path    = require("path");
+const path = require("path");
 const session = require("express-session");
+const crypto = require("crypto");
 require("dotenv").config();
-const apiRouter = require("./routes/api");
 
 const { calculerCoupures } = require("./modules/dab");
+const apiRouter = require("./routes/api");
+const db = require("./database/db");
 
-const app  = express();
+const app = express();
 const PORT = 8080;
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use("/api", apiRouter);
 
 app.use(session({
   secret: "monSuperSecretChangeLe",
@@ -23,57 +24,173 @@ app.use(session({
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
+app.use("/api", apiRouter);
+
+// Infos utilisateur dispo dans les vues
 app.use((req, res, next) => {
-  res.locals.isAdmin = req.session.isAdmin || false;
-  res.locals.login   = req.session.login   || null;
+  res.locals.user = req.session.user || null;
+  res.locals.isAdmin = req.session.user?.role === "gestionnaire";
+  res.locals.login = req.session.user?.prenom || null;
   next();
 });
 
-// --- Accueil ---
+// Accueil
 app.get("/", (req, res) => {
   res.render("pages/index", { title: "Accueil" });
 });
 
-// --- Auth ---
+// Catalogue
+app.get("/boutique", (req, res) => {
+  res.render("pages/boutique", { title: "Boutique" });
+});
+
+app.get("/boutique/produit/:id", (req, res) => {
+  res.render("pages/produit", {
+    title: "Produit",
+    produitId: req.params.id
+  });
+});
+
+// Auth
 app.get("/auth/login", (req, res) => {
-  if (req.session.isAdmin) return res.redirect("/");
+  if (req.session.user) return res.redirect("/");
   res.render("pages/login", { title: "Connexion", error: null });
 });
 
-app.post("/auth/login", (req, res) => {
-  const { login, password } = req.body;
-  if (login === "admin" && password === "admin") {
-    req.session.isAdmin = true;
-    req.session.login   = login;
-    return res.redirect("/");
+app.post("/auth/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const [managers] = await db.query(
+      "SELECT * FROM Gestionnaires WHERE Email = ?",
+      [email]
+    );
+
+    if (managers.length) {
+      const m = managers[0];
+      if (m.Mot_de_passe !== password) {
+        return res.render("pages/login", { title: "Connexion", error: "Mot de passe incorrect." });
+      }
+
+      req.session.user = {
+        id: m.Id,
+        nom: m.Nom,
+        prenom: m.Prenom,
+        email: m.Email,
+        role: "gestionnaire"
+      };
+
+      return res.redirect("/dashboard");
+    }
+
+    const hash = crypto.createHash("sha256").update(password).digest("hex");
+
+    const [clients] = await db.query(
+      "SELECT * FROM Clients WHERE Email = ?",
+      [email]
+    );
+
+    if (!clients.length) {
+      return res.render("pages/login", { title: "Connexion", error: "Compte introuvable." });
+    }
+
+    const c = clients[0];
+
+    if (c.Mot_de_passe !== hash) {
+      return res.render("pages/login", { title: "Connexion", error: "Mot de passe incorrect." });
+    }
+
+    req.session.user = {
+      id: c.ID_client,
+      nom: c.Nom,
+      prenom: c.Prenom,
+      email: c.Email,
+      role: "client"
+    };
+
+    res.redirect("/espace-client");
+
+  } catch (err) {
+    console.error(err);
+    res.render("pages/login", { title: "Connexion", error: "Erreur serveur." });
   }
-  res.render("pages/login", { title: "Connexion", error: "Identifiants incorrects" });
 });
 
 app.post("/auth/logout", (req, res) => {
-  req.session.destroy(() => {
-    res.redirect("/");
-  });
-}); 
+  req.session.destroy(() => res.redirect("/"));
+});
 
-//  DAB formulaire
+app.get("/auth/register", (req, res) => {
+  if (req.session.user) return res.redirect("/");
+  res.render("pages/register", { title: "Inscription", error: null });
+});
+
+app.post("/auth/register", async (req, res) => {
+  const {
+    nom, prenom, email, telephone,
+    adresse, ville, codepostal, pays,
+    password, password_confirm
+  } = req.body;
+
+  if (password !== password_confirm) {
+    return res.render("pages/register", {
+      title: "Inscription",
+      error: "Les mots de passe ne correspondent pas."
+    });
+  }
+
+  try {
+    const [existing] = await db.query(
+      "SELECT ID_client FROM Clients WHERE Email = ?",
+      [email]
+    );
+
+    if (existing.length) {
+      return res.render("pages/register", {
+        title: "Inscription",
+        error: "Email déjà utilisé."
+      });
+    }
+
+    const hash = crypto.createHash("sha256").update(password).digest("hex");
+    const today = new Date().toISOString().slice(0, 10);
+
+    await db.query(
+      `
+      INSERT INTO Clients
+      (Nom, Prenom, Email, Telephone, Adresse, Ville, CodePostal, Pays, Date_inscription, Mot_de_passe)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      [nom, prenom, email, telephone, adresse, ville, codepostal, pays, today, hash]
+    );
+
+    res.redirect("/auth/login");
+
+  } catch (err) {
+    console.error(err);
+    res.render("pages/register", { title: "Inscription", error: "Erreur serveur." });
+  }
+});
+
+// DAB
 app.get("/dab", (req, res) => {
   if (!req.query.montant) {
     return res.render("pages/dab", { title: "DAB" });
   }
+
   const montant = parseFloat(req.query.montant);
-  const devise  = req.query.devise || "euros";
+  const devise = req.query.devise || "euros";
+
   res.redirect(`/dab/${devise}/${montant}`);
 });
 
-// DAB route
 app.get("/dab/:devise/:montant", (req, res) => {
   const montant = parseFloat(req.params.montant);
-  const devise  = req.params.devise;
+  const devise = req.params.devise;
 
   if (isNaN(montant) || montant <= 0) {
     return res.render("pages/dab-result", {
-      title: "DAB - Résultat",
+      title: "DAB",
       montant: req.params.montant,
       devise,
       repartition: [],
@@ -82,24 +199,22 @@ app.get("/dab/:devise/:montant", (req, res) => {
   }
 
   const { repartition, plusPetite } = calculerCoupures(montant, devise);
-  res.render("pages/dab-result", { title: `DAB - ${montant} ${devise}`, montant, devise, repartition, plusPetite });
+
+  res.render("pages/dab-result", {
+    title: `DAB - ${montant} ${devise}`,
+    montant,
+    devise,
+    repartition,
+    plusPetite
+  });
 });
 
-// Boutique
-app.get("/boutique", (req, res) => {
-  res.render("pages/boutique", { title: "Boutique" });
-});
-
-app.get("/boutique/produit/:id", (req, res) => {
-  res.render("pages/produit", { title: "Produit", produitId: req.params.id });
-});
-
-//Erreur volontaire
+// Page volontairement erronée
 app.get("/erreur", (req, res) => {
   res.render("pages/error", { title: "Erreur" });
 });
 
-//  404 
+// 404
 app.use((req, res) => {
   res.status(404).render("pages/404", { title: "Page introuvable" });
 });

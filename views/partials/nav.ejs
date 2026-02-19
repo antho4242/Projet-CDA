@@ -5,12 +5,24 @@
     <a class="nav__link" href="/dab">DAB</a>
     <a class="nav__link nav__link--danger" href="/erreur">⚠ Erreur</a>
 
+    <% if (user && user.role === 'gestionnaire') { %>
+      <a class="nav__link" href="/dashboard">Dashboard</a>
+    <% } %>
+
+    <% if (user && user.role === 'client') { %>
+      <a class="nav__link" href="/espace-client">Mon espace</a>
+    <% } %>
+
     <div class="nav__spacer"></div>
 
-    <% if (!isAdmin) { %>
-      <a class="btn btn--ghost" href="/auth/login">Connexion admin</a>
+    <% if (!user) { %>
+      <a class="btn btn--ghost" href="/auth/login">Connexion</a>
+      <a class="btn btn--primary" href="/auth/register">S'inscrire</a>
     <% } else { %>
-      <span class="nav__welcome">👤 <strong><%= login %></strong></span>
+      <span class="nav__welcome">
+        👤 <strong><%= user.prenom %></strong>
+        <span class="role-badge role-badge--<%= user.role %>"><%= user.role %></span>
+      </span>
       <form action="/auth/logout" method="POST">
         <button class="btn btn--danger" type="submit">Déconnexion</button>
       </form>
