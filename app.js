@@ -34,6 +34,21 @@ app.use((req, res, next) => {
   next();
 });
 
+// Middlewares de protection
+function requireGestionnaire(req, res, next) {
+  if (!req.session.user || req.session.user.role !== "gestionnaire") {
+    return res.redirect("/auth/login");
+  }
+  next();
+}
+
+function requireAuth(req, res, next) {
+  if (!req.session.user) {
+    return res.redirect("/auth/login");
+  }
+  next();
+}
+
 // Accueil
 app.get("/", (req, res) => {
   res.render("pages/index", { title: "Accueil" });
@@ -170,6 +185,123 @@ app.post("/auth/register", async (req, res) => {
     console.error(err);
     res.render("pages/register", { title: "Inscription", error: "Erreur serveur." });
   }
+});
+
+// Dashboard gestionnaire
+app.get("/dashboard", requireGestionnaire, async (req, res) => {
+  try {
+    const [produits] = await db.query("SELECT COUNT(*) AS total FROM Produits");
+    const [clients] = await db.query("SELECT COUNT(*) AS total FROM Clients");
+    const [commandes] = await db.query("SELECT COUNT(*) AS total FROM Commande");
+    const [faibleStock] = await db.query(
+      "SELECT COUNT(*) AS total FROM Stock WHERE Quantite <= 5"
+    );
+
+    res.render("pages/dashboard/index", {
+      title: "Dashboard",
+      stats: {
+        produits: produits[0].total,
+        clients: clients[0].total,
+        commandes: commandes[0].total,
+        faibleStock: faibleStock[0].total
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.redirect("/erreur");
+  }
+});
+
+app.get("/dashboard/produits", requireGestionnaire, async (req, res) => {
+  const [produits] = await db.query(`
+    SELECT p.*, c.nom AS categorie, s.Quantite AS stock
+    FROM Produits p
+    JOIN Categories c ON p.ID_categorie = c.ID_categorie
+    LEFT JOIN Stock s ON s.ID_produit = p.ID_produit
+    ORDER BY c.nom, p.Nom_produit
+  `);
+  res.render("pages/dashboard/produits", { title: "Produits", produits });
+});
+
+app.post("/dashboard/produits/supprimer/:id", requireGestionnaire, async (req, res) => {
+  await db.query("DELETE FROM Stock WHERE ID_produit = ?", [req.params.id]);
+  await db.query("DELETE FROM Produits WHERE ID_produit = ?", [req.params.id]);
+  res.redirect("/dashboard/produits");
+});
+
+app.get("/dashboard/clients", requireGestionnaire, async (req, res) => {
+  const [clients] = await db.query("SELECT * FROM Clients ORDER BY Nom");
+  res.render("pages/dashboard/clients", { title: "Clients", clients });
+});
+
+app.post("/dashboard/clients/supprimer/:id", requireGestionnaire, async (req, res) => {
+  await db.query("DELETE FROM Clients WHERE ID_client = ?", [req.params.id]);
+  res.redirect("/dashboard/clients");
+});
+
+app.get("/dashboard/commandes", requireGestionnaire, async (req, res) => {
+  const [commandes] = await db.query(`
+    SELECT c.*, cl.Nom, cl.Prenom
+    FROM Commande c
+    JOIN Clients cl ON c.ID_client = cl.ID_client
+    ORDER BY c.Date_commande DESC
+  `);
+  res.render("pages/dashboard/commandes", { title: "Commandes", commandes });
+});
+
+app.post("/dashboard/commandes/statut/:id", requireGestionnaire, async (req, res) => {
+  const { statut } = req.body;
+  await db.query(
+    "UPDATE Commande SET Statut_commande = ? WHERE ID_commande = ?",
+    [statut, req.params.id]
+  );
+  res.redirect("/dashboard/commandes");
+});
+
+app.get("/dashboard/rapports", requireGestionnaire, async (req, res) => {
+  const [faibleStock] = await db.query(`
+    SELECT p.Nom_produit, s.Quantite
+    FROM Stock s
+    JOIN Produits p ON s.ID_produit = p.ID_produit
+    WHERE s.Quantite <= 5
+    ORDER BY s.Quantite ASC
+  `);
+
+  const [plusVendus] = await db.query(`
+    SELECT p.Nom_produit, SUM(v.Quantite) AS total_vendu
+    FROM Vendu v
+    JOIN Produits p ON v.ID_produit = p.ID_produit
+    GROUP BY p.ID_produit
+    ORDER BY total_vendu DESC
+    LIMIT 5
+  `);
+
+  const [clientsFideles] = await db.query(`
+    SELECT cl.Nom, cl.Prenom, COUNT(c.ID_commande) AS nb_commandes
+    FROM Commande c
+    JOIN Clients cl ON c.ID_client = cl.ID_client
+    GROUP BY c.ID_client
+    ORDER BY nb_commandes DESC
+    LIMIT 5
+  `);
+
+  const [clientsAnnulations] = await db.query(`
+    SELECT cl.Nom, cl.Prenom, COUNT(c.ID_commande) AS nb_annulations
+    FROM Commande c
+    JOIN Clients cl ON c.ID_client = cl.ID_client
+    WHERE c.Statut_commande = 'Annulée'
+    GROUP BY c.ID_client
+    ORDER BY nb_annulations DESC
+    LIMIT 5
+  `);
+
+  res.render("pages/dashboard/rapports", {
+    title: "Rapports",
+    faibleStock,
+    plusVendus,
+    clientsFideles,
+    clientsAnnulations
+  });
 });
 
 // DAB

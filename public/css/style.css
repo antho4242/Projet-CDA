@@ -227,3 +227,59 @@ p { color: var(--muted); line-height: 1.6; }
 }
 .role-badge--gestionnaire { background: rgba(124,92,255,0.25); color: var(--accent); }
 .role-badge--client { background: rgba(255,77,109,0.2); color: var(--danger); }
+
+/* Dashboard */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+.stat-card {
+  background: rgba(15,26,51,0.6);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  text-decoration: none;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.stat-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+.stat-card--danger { border-color: rgba(255,77,109,0.3); }
+.stat-card__icon { font-size: 32px; }
+.stat-card__val { font-size: 40px; font-weight: 900; color: var(--accent); }
+.stat-card__label { font-size: 13px; color: var(--muted); }
+
+.dashboard-nav { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+
+/* Tables */
+.table-wrapper { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.table th { color: var(--muted); font-weight: 600; }
+.table tr:hover td { background: rgba(255,255,255,0.03); }
+.text-danger { color: var(--danger); font-weight: 600; }
+
+/* Badges statut */
+.badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.badge--success { background: rgba(0,200,100,0.15); color: #00c864; }
+.badge--danger  { background: rgba(255,77,109,0.15); color: var(--danger); }
+.badge--warning { background: rgba(255,200,0,0.15); color: #ffc800; }
+
+/* Rapports */
+.rapports-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 20px; }
+.rapports-grid .card h2 { margin-top: 0; font-size: 16px; }
+
+.form-inline { display: flex; gap: 8px; align-items: center; }
+.form__select--sm { padding: 6px 10px; font-size: 13px; }

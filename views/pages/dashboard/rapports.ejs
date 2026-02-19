@@ -1,0 +1,81 @@
+<%- include("../../partials/header", { title }) %>
+<%- include("../../partials/nav") %>
+
+<main class="container main">
+  <div class="page-header">
+    <h1>📊 Rapports d'analyse</h1>
+    <a href="/dashboard" class="btn btn--ghost">← Dashboard</a>
+  </div>
+
+  <div class="rapports-grid">
+
+    <section class="card">
+      <h2>⚠️ Produits à faible stock</h2>
+      <table class="table">
+        <thead><tr><th>Produit</th><th>Stock</th></tr></thead>
+        <tbody>
+          <% faibleStock.forEach(p => { %>
+            <tr>
+              <td><%= p.Nom_produit %></td>
+              <td class="text-danger"><%= p.Quantite %></td>
+            </tr>
+          <% }) %>
+          <% if (!faibleStock.length) { %>
+            <tr><td colspan="2" style="color:var(--muted)">Aucun produit en alerte</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>🏆 Produits les plus vendus</h2>
+      <table class="table">
+        <thead><tr><th>Produit</th><th>Qté vendue</th></tr></thead>
+        <tbody>
+          <% plusVendus.forEach(p => { %>
+            <tr>
+              <td><%= p.Nom_produit %></td>
+              <td><%= p.total_vendu %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>❤️ Clients les plus fidèles</h2>
+      <table class="table">
+        <thead><tr><th>Client</th><th>Commandes</th></tr></thead>
+        <tbody>
+          <% clientsFideles.forEach(c => { %>
+            <tr>
+              <td><%= c.Nom %> <%= c.Prenom %></td>
+              <td><%= c.nb_commandes %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>❌ Clients qui annulent</h2>
+      <table class="table">
+        <thead><tr><th>Client</th><th>Annulations</th></tr></thead>
+        <tbody>
+          <% clientsAnnulations.forEach(c => { %>
+            <tr>
+              <td><%= c.Nom %> <%= c.Prenom %></td>
+              <td class="text-danger"><%= c.nb_annulations %></td>
+            </tr>
+          <% }) %>
+          <% if (!clientsAnnulations.length) { %>
+            <tr><td colspan="2" style="color:var(--muted)">Aucune annulation</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </section>
+
+  </div>
+</main>
+
+<%- include("../../partials/footer") %>

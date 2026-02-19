@@ -1,0 +1,47 @@
+<%- include("../../partials/header", { title }) %>
+<%- include("../../partials/nav") %>
+
+<main class="container main">
+  <div class="page-header">
+    <h1>👥 Gestion des clients</h1>
+    <a href="/dashboard" class="btn btn--ghost">← Dashboard</a>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th>Ville</th>
+          <th>Inscription</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% clients.forEach(c => { %>
+          <tr>
+            <td><%= c.ID_client %></td>
+            <td><%= c.Nom %></td>
+            <td><%= c.Prenom %></td>
+            <td><%= c.Email %></td>
+            <td><%= c.Telephone %></td>
+            <td><%= c.Ville %></td>
+            <td><%= c.Date_inscription %></td>
+            <td>
+              <form action="/dashboard/clients/supprimer/<%= c.ID_client %>" method="POST"
+                    onsubmit="return confirm('Supprimer ce client ?')">
+                <button class="btn btn--danger btn--sm">Supprimer</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<%- include("../../partials/footer") %>

@@ -1,0 +1,39 @@
+<%- include("../../partials/header", { title }) %>
+<%- include("../../partials/nav") %>
+
+<main class="container main">
+  <h1>📊 Dashboard Gestionnaire</h1>
+  <p style="color:var(--muted)">Bonjour <strong><%= user.prenom %> <%= user.nom %></strong></p>
+
+  <div class="stats-grid">
+    <a href="/dashboard/produits" class="stat-card">
+      <span class="stat-card__icon">📦</span>
+      <span class="stat-card__val"><%= stats.produits %></span>
+      <span class="stat-card__label">Produits</span>
+    </a>
+    <a href="/dashboard/clients" class="stat-card">
+      <span class="stat-card__icon">👥</span>
+      <span class="stat-card__val"><%= stats.clients %></span>
+      <span class="stat-card__label">Clients</span>
+    </a>
+    <a href="/dashboard/commandes" class="stat-card">
+      <span class="stat-card__icon">🛒</span>
+      <span class="stat-card__val"><%= stats.commandes %></span>
+      <span class="stat-card__label">Commandes</span>
+    </a>
+    <a href="/dashboard/rapports" class="stat-card stat-card--danger">
+      <span class="stat-card__icon">⚠️</span>
+      <span class="stat-card__val"><%= stats.faibleStock %></span>
+      <span class="stat-card__label">Stocks faibles</span>
+    </a>
+  </div>
+
+  <div class="dashboard-nav">
+    <a href="/dashboard/produits" class="btn btn--primary">📦 Gérer les produits</a>
+    <a href="/dashboard/clients" class="btn btn--ghost">👥 Gérer les clients</a>
+    <a href="/dashboard/commandes" class="btn btn--ghost">🛒 Gérer les commandes</a>
+    <a href="/dashboard/rapports" class="btn btn--ghost">📊 Rapports</a>
+  </div>
+</main>
+
+<%- include("../../partials/footer") %>

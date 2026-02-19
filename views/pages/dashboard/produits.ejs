@@ -1,0 +1,47 @@
+<%- include("../../partials/header", { title }) %>
+<%- include("../../partials/nav") %>
+
+<main class="container main">
+  <div class="page-header">
+    <h1>📦 Gestion des produits</h1>
+    <a href="/dashboard" class="btn btn--ghost">← Dashboard</a>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Référence</th>
+          <th>Nom</th>
+          <th>Prix</th>
+          <th>Taille</th>
+          <th>Catégorie</th>
+          <th>Stock</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% produits.forEach(p => { %>
+          <tr>
+            <td><code><%= p.Reference %></code></td>
+            <td><%= p.Nom_produit %></td>
+            <td><%= parseFloat(p.Prix).toFixed(2) %> €</td>
+            <td><%= p.Taille_produit %></td>
+            <td><%= p.categorie %></td>
+            <td class="<%= p.stock <= 5 ? 'text-danger' : '' %>">
+              <%= p.stock ?? 'N/A' %>
+            </td>
+            <td>
+              <form action="/dashboard/produits/supprimer/<%= p.ID_produit %>" method="POST"
+                    onsubmit="return confirm('Supprimer ce produit ?')">
+                <button class="btn btn--danger btn--sm">Supprimer</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<%- include("../../partials/footer") %>

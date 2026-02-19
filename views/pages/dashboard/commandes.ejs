@@ -1,0 +1,49 @@
+<%- include("../../partials/header", { title }) %>
+<%- include("../../partials/nav") %>
+
+<main class="container main">
+  <div class="page-header">
+    <h1>🛒 Gestion des commandes</h1>
+    <a href="/dashboard" class="btn btn--ghost">← Dashboard</a>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Client</th>
+          <th>Date</th>
+          <th>Statut</th>
+          <th>Modifier statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% commandes.forEach(c => { %>
+          <tr>
+            <td>#<%= c.ID_commande %></td>
+            <td><%= c.Nom %> <%= c.Prenom %></td>
+            <td><%= c.Date_commande %></td>
+            <td>
+              <span class="badge badge--<%= c.Statut_commande === 'Terminé' ? 'success' : c.Statut_commande === 'Annulée' ? 'danger' : 'warning' %>">
+                <%= c.Statut_commande %>
+              </span>
+            </td>
+            <td>
+              <form action="/dashboard/commandes/statut/<%= c.ID_commande %>" method="POST" class="form-inline">
+                <select name="statut" class="form__select form__select--sm">
+                  <option value="En cours"  <%= c.Statut_commande === 'En cours'  ? 'selected' : '' %>>En cours</option>
+                  <option value="Terminé"   <%= c.Statut_commande === 'Terminé'   ? 'selected' : '' %>>Terminé</option>
+                  <option value="Annulée"   <%= c.Statut_commande === 'Annulée'   ? 'selected' : '' %>>Annulée</option>
+                </select>
+                <button class="btn btn--primary btn--sm">Mettre à jour</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<%- include("../../partials/footer") %>
