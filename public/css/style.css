@@ -173,3 +173,40 @@ p { color: var(--muted); line-height: 1.6; }
   border-radius: 12px;
   border: 1px solid var(--border);
 }
+
+/* Boutique */
+.boutique-hero { margin-bottom: 32px; }
+.boutique-section { margin-bottom: 40px; }
+.boutique-section__title {
+  font-size: 18px; color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px; margin-bottom: 16px;
+}
+.produits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.produit-card {
+  background: rgba(15,26,51,0.6);
+  border: 1px solid var(--border);
+  border-radius: 16px; padding: 18px;
+  text-decoration: none; color: var(--text);
+  display: flex; flex-direction: column; gap: 10px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.produit-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+.produit-card__body h3 { margin: 0 0 4px; font-size: 15px; }
+.produit-card__taille { font-size: 12px; color: var(--muted); }
+.produit-card__footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+.produit-card__prix { font-size: 18px; font-weight: 700; color: var(--accent); }
+.produit-card__stock { font-size: 12px; color: var(--muted); }
+.stock--low { color: var(--danger) !important; font-weight: 600; }
+.loading { color: var(--muted); }
+
+/*  Fiche produit */
+.produit-detail { display: flex; gap: 32px; align-items: flex-start; }
+.produit-detail__cat { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.produit-detail__info h1 { margin: 6px 0 16px; }
+.produit-detail__prix { font-size: 36px; font-weight: 900; color: var(--accent); margin: 16px 0; }
+.produit-detail__actions { display: flex; gap: 12px; flex-wrap: wrap; }

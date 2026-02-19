@@ -85,6 +85,15 @@ app.get("/dab/:devise/:montant", (req, res) => {
   res.render("pages/dab-result", { title: `DAB - ${montant} ${devise}`, montant, devise, repartition, plusPetite });
 });
 
+// Boutique
+app.get("/boutique", (req, res) => {
+  res.render("pages/boutique", { title: "Boutique" });
+});
+
+app.get("/boutique/produit/:id", (req, res) => {
+  res.render("pages/produit", { title: "Produit", produitId: req.params.id });
+});
+
 //Erreur volontaire
 app.get("/erreur", (req, res) => {
   res.render("pages/error", { title: "Erreur" });

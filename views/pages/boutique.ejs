@@ -1,0 +1,59 @@
+<%- include("../partials/header", { title: "Boutique" }) %>
+<%- include("../partials/nav") %>
+
+<main class="container main">
+  <section class="boutique-hero">
+    <h1>🛍️ Notre Boutique</h1>
+    <p>Articles en cuir artisanal — chargés depuis la base de données</p>
+  </section>
+
+  <div id="boutique-content">
+    <p class="loading">Chargement des produits...</p>
+  </div>
+</main>
+
+<script>
+fetch("/api/produits")
+  .then(res => res.json())
+  .then(produits => {
+    const parCategorie = produits.reduce((acc, p) => {
+      acc[p.categorie] = acc[p.categorie] || [];
+      acc[p.categorie].push(p);
+      return acc;
+    }, {});
+
+    let html = "";
+    for (const [cat, items] of Object.entries(parCategorie)) {
+      html += `
+        <section class="boutique-section">
+          <h2 class="boutique-section__title">${cat}</h2>
+          <div class="produits-grid">`;
+
+      items.forEach(p => {
+        html += `
+          <a href="/boutique/produit/${p.ID_produit}" class="produit-card">
+            <div class="produit-card__body">
+              <h3>${p.Nom_produit}</h3>
+              <span class="produit-card__taille">${p.Taille_produit}</span>
+            </div>
+            <div class="produit-card__footer">
+              <span class="produit-card__prix">${parseFloat(p.Prix).toFixed(2)} €</span>
+              <span class="produit-card__stock ${p.stock <= 5 ? 'stock--low' : ''}">
+                Stock : ${p.stock ?? 'N/A'}
+              </span>
+            </div>
+          </a>`;
+      });
+
+      html += `</div></section>`;
+    }
+
+    document.getElementById("boutique-content").innerHTML = html;
+  })
+  .catch(() => {
+    document.getElementById("boutique-content").innerHTML =
+      '<p class="alert alert--error">Erreur de chargement des produits.</p>';
+  });
+</script>
+
+<%- include("../partials/footer") %>

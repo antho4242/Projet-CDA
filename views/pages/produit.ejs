@@ -1,0 +1,42 @@
+<%- include("../partials/header", { title: "Produit" }) %>
+<%- include("../partials/nav") %>
+
+<main class="container main">
+  <a href="/boutique" class="btn" style="margin-bottom:20px; display:inline-block;">← Retour boutique</a>
+  <div id="produit-content"><p class="loading">Chargement...</p></div>
+</main>
+
+<script>
+const id = "<%= produitId %>";
+
+fetch(`/api/produits/${id}`)
+  .then(res => {
+    if (!res.ok) throw new Error("Produit introuvable");
+    return res.json();
+  })
+  .then(p => {
+    document.title = p.Nom_produit;
+    document.getElementById("produit-content").innerHTML = `
+      <section class="card produit-detail">
+        <div class="produit-detail__info">
+          <span class="produit-detail__cat">${p.categorie}</span>
+          <h1>${p.Nom_produit}</h1>
+          <p>Taille : <strong>${p.Taille_produit}</strong></p>
+          <p>Référence : <strong>${p.Reference}</strong></p>
+          <p>Stock disponible : <strong>${p.stock ?? 'N/A'}</strong></p>
+          <div class="produit-detail__prix">${parseFloat(p.Prix).toFixed(2)} €</div>
+          <div class="produit-detail__actions">
+            <a href="/dab/euros/${p.Prix}" class="btn btn--primary">
+              🏧 Voir en coupures DAB
+            </a>
+          </div>
+        </div>
+      </section>`;
+  })
+  .catch(() => {
+    document.getElementById("produit-content").innerHTML =
+      '<p class="alert alert--error">Produit introuvable.</p>';
+  });
+</script>
+
+<%- include("../partials/footer") %>
