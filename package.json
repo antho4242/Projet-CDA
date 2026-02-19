@@ -1,13 +1,13 @@
 {
-  "name": "exam-cda",
+  "name": "projet-cda",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Application Express/EJS - Projet CDA",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "antho4242",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
