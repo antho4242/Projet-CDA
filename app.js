@@ -60,9 +60,14 @@ app.post("/auth/logout", (req, res) => {
   });
 });
 
+// Route vers la page erreur volontaire
+app.get("/erreur", (req, res) => {
+  res.render("pages/error", { title: "Erreur" });
+});
+
 // 404
 app.use((req, res) => {
-  res.status(404).send("Page non trouvée");
+  res.status(404).render("pages/404", { title: "Page introuvable" });
 });
 
 app.listen(PORT, () => {

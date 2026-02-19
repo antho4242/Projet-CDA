@@ -1,0 +1,16 @@
+<%- include("../partials/header", { title: "Page introuvable" }) %>
+<%- include("../partials/nav") %>
+
+<main class="container main">
+  <section class="card card--center">
+    <div class="error-code">404</div>
+    <h1>Page introuvable</h1>
+    <p>La page que vous cherchez n'existe pas ou a été déplacée.</p>
+    <div class="error-actions">
+      <a href="/" class="btn btn--primary">Retour à l'accueil</a>
+      <a href="/auth/login" class="btn">Connexion admin</a>
+    </div>
+  </section>
+</main>
+
+<%- include("../partials/footer") %>

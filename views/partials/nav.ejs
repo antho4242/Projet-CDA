@@ -1,17 +1,16 @@
 <nav class="nav">
   <div class="container nav__inner">
     <a class="nav__link" href="/">Accueil</a>
-    <a class="nav__link" href="/pages/about">À propos</a>
-    <a class="nav__link" href="/pages/contact">Contact</a>
-
-    <!-- Lien 404 -->
-    <a class="nav__link nav__link--danger" href="/page-qui-n-existe-pas">Page erreur</a>
+    <a class="nav__link" href="/boutique">Boutique</a>
+    <a class="nav__link" href="/dab">DAB</a>
+    <a class="nav__link nav__link--danger" href="/erreur">⚠ Erreur</a>
 
     <div class="nav__spacer"></div>
 
     <% if (!isAdmin) { %>
       <a class="btn btn--ghost" href="/auth/login">Connexion admin</a>
     <% } else { %>
+      <span class="nav__welcome">👤 <strong><%= login %></strong></span>
       <form action="/auth/logout" method="POST">
         <button class="btn btn--danger" type="submit">Déconnexion</button>
       </form>
