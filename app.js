@@ -1,6 +1,8 @@
 const express = require("express");
 const path    = require("path");
 const session = require("express-session");
+require("dotenv").config();
+const apiRouter = require("./routes/api");
 
 const { calculerCoupures } = require("./modules/dab");
 
@@ -9,6 +11,8 @@ const PORT = 8080;
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use("/api", apiRouter);
 
 app.use(session({
   secret: "monSuperSecretChangeLe",
