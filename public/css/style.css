@@ -283,3 +283,9 @@ p { color: var(--muted); line-height: 1.6; }
 
 .form-inline { display: flex; gap: 8px; align-items: center; }
 .form__select--sm { padding: 6px 10px; font-size: 13px; }
+
+/* Espace client */
+.client-hero { margin-bottom: 24px; }
+.client-hero h1 { margin-bottom: 6px; }
+.commande-info { display: flex; gap: 24px; flex-wrap: wrap; }
+.commande-info p { margin: 0; }

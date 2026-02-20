@@ -1,0 +1,59 @@
+<%- include("../../partials/header", { title }) %>
+<%- include("../../partials/nav") %>
+
+<main class="container main">
+  <div class="page-header">
+    <h1>🛒 Commande #<%= commande.ID_commande %></h1>
+    <a href="/espace-client" class="btn btn--ghost">← Mes commandes</a>
+  </div>
+
+  <section class="card">
+    <div class="commande-info">
+      <p>Date : <strong><%= commande.Date_commande %></strong></p>
+      <p>Statut :
+        <span class="badge badge--<%= commande.Statut_commande === 'Terminé' ? 'success' : commande.Statut_commande === 'Annulée' ? 'danger' : 'warning' %>">
+          <%= commande.Statut_commande %>
+        </span>
+      </p>
+    </div>
+
+    <table class="table" style="margin-top:20px">
+      <thead>
+        <tr>
+          <th>Produit</th>
+          <th>Prix unitaire</th>
+          <th>Quantité</th>
+          <th>Sous-total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% produits.forEach(p => { %>
+          <tr>
+            <td><%= p.Nom_produit %></td>
+            <td><%= parseFloat(p.Prix).toFixed(2) %> €</td>
+            <td><%= p.Quantite %></td>
+            <td><%= parseFloat(p.sous_total).toFixed(2) %> €</td>
+          </tr>
+        <% }) %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" style="text-align:right; font-weight:700;">Total</td>
+          <td style="font-weight:700; color:var(--accent)"><%= total.toFixed(2) %> €</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <% if (commande.Statut_commande === 'En cours') { %>
+      <form action="/espace-client/commande/<%= commande.ID_commande %>/annuler"
+            method="POST"
+            onsubmit="return confirm('Annuler cette commande ?')"
+            style="margin-top:20px">
+        <button class="btn btn--danger">❌ Annuler la commande</button>
+      </form>
+    <% } %>
+  </section>
+
+</main>
+
+<%- include("../../partials/footer") %>
