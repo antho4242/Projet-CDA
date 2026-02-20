@@ -1,0 +1,81 @@
+<%- include("../partials/header", { title: "Mon Panier" }) %>
+<%- include("../partials/nav") %>
+
+<main class="container main">
+  <h1>🛒 Mon Panier</h1>
+
+  <% if (typeof query !== 'undefined' && query?.erreur === 'stock') { %>
+    <div class="alert alert--error">Stock insuffisant pour un ou plusieurs articles.</div>
+  <% } %>
+
+  <% if (!produits.length) { %>
+    <section class="card" style="text-align:center; padding:40px">
+      <p style="font-size:18px">Votre panier est vide.</p>
+      <a href="/boutique" class="btn btn--primary" style="margin-top:16px">
+        Découvrir la boutique →
+      </a>
+    </section>
+  <% } else { %>
+
+    <div class="panier-layout">
+      <section class="card panier-items">
+        <% produits.forEach(p => { %>
+          <div class="panier-item">
+            <div class="panier-item__info">
+              <h3><%= p.Nom_produit %></h3>
+              <p><%= p.categorie %> — <%= p.Taille_produit %></p>
+              <p class="panier-item__prix"><%= parseFloat(p.Prix).toFixed(2) %> € / unité</p>
+            </div>
+
+            <div class="panier-item__actions">
+              <form action="/panier/modifier" method="POST" class="form-inline">
+                <input type="hidden" name="id" value="<%= p.ID_produit %>" />
+                <input type="number" name="quantite" value="<%= p.quantite %>"
+                       min="0" max="<%= p.stock %>" class="panier-input" />
+                <button class="btn btn--ghost btn--sm">Mettre à jour</button>
+              </form>
+
+              <form action="/panier/supprimer" method="POST">
+                <input type="hidden" name="id" value="<%= p.ID_produit %>" />
+                <button class="btn btn--danger btn--sm">🗑</button>
+              </form>
+            </div>
+
+            <div class="panier-item__subtotal">
+              <%= parseFloat(p.sous_total).toFixed(2) %> €
+            </div>
+          </div>
+        <% }) %>
+      </section>
+
+      <aside class="card panier-recap">
+        <h2>Récapitulatif</h2>
+        <div class="panier-recap__line">
+          <span>Sous-total</span>
+          <strong><%= total.toFixed(2) %> €</strong>
+        </div>
+        <div class="panier-recap__line">
+          <span>Livraison</span>
+          <strong>Gratuite</strong>
+        </div>
+        <div class="panier-recap__total">
+          <span>Total</span>
+          <strong><%= total.toFixed(2) %> €</strong>
+        </div>
+
+        <form action="/commande/confirmer" method="POST" style="margin-top:20px">
+          <button class="btn btn--primary" style="width:100%">
+            ✅ Confirmer la commande
+          </button>
+        </form>
+
+        <a href="/boutique" class="btn btn--ghost" style="width:100%; margin-top:8px; text-align:center; display:block">
+          ← Continuer mes achats
+        </a>
+      </aside>
+    </div>
+
+  <% } %>
+</main>
+
+<%- include("../partials/footer") %>

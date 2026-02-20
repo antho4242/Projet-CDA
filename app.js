@@ -15,7 +15,6 @@ const PORT = 8080;
 // Helpers
 // ------------------
 
-// Date lisible FR : "10/03/2024"
 function formatDate(date) {
   if (!date) return "—";
   return new Date(date).toLocaleDateString("fr-FR", {
@@ -100,6 +99,165 @@ app.get("/boutique/produit/:id", (req, res) => {
 });
 
 // ------------------
+// Panier + Commande
+// ------------------
+
+// Affiche le panier
+app.get("/panier", requireAuth, async (req, res) => {
+  try {
+    if (req.session.user.role !== "client") return res.redirect("/");
+
+    const panier = req.session.panier || [];
+
+    // Enrichit le panier avec les infos produits depuis MySQL
+    const produits = [];
+    let total = 0;
+
+    for (const item of panier) {
+      const [rows] = await db.query(
+        `
+        SELECT p.*, c.nom AS categorie, s.Quantite AS stock
+        FROM Produits p
+        JOIN Categories c ON p.ID_categorie = c.ID_categorie
+        LEFT JOIN Stock s ON s.ID_produit = p.ID_produit
+        WHERE p.ID_produit = ?
+        `,
+        [item.id]
+      );
+
+      if (rows.length) {
+        const p = rows[0];
+        const sous_total = parseFloat(p.Prix) * item.quantite;
+        total += sous_total;
+        produits.push({ ...p, quantite: item.quantite, sous_total });
+      }
+    }
+
+    res.render("pages/panier", { title: "Mon Panier", produits, total });
+  } catch (err) {
+    console.error(err);
+    res.redirect("/panier?erreur=serveur");
+  }
+});
+
+// Ajouter au panier
+app.post("/panier/ajouter", requireAuth, async (req, res) => {
+  try {
+    if (req.session.user.role !== "client") return res.redirect("/");
+
+    const id = parseInt(req.body.id);
+    const quantite = parseInt(req.body.quantite) || 1;
+
+    if (!Number.isFinite(id) || id <= 0) return res.redirect("/boutique");
+
+    if (!req.session.panier) req.session.panier = [];
+
+    const existing = req.session.panier.find((p) => p.id === id);
+    if (existing) {
+      existing.quantite += quantite;
+    } else {
+      req.session.panier.push({ id, quantite });
+    }
+
+    res.redirect("/panier");
+  } catch (err) {
+    console.error(err);
+    res.redirect("/panier?erreur=serveur");
+  }
+});
+
+// Modifier quantité dans le panier
+app.post("/panier/modifier", requireAuth, (req, res) => {
+  try {
+    const id = parseInt(req.body.id);
+    const quantite = parseInt(req.body.quantite);
+
+    if (!req.session.panier) return res.redirect("/panier");
+    if (!Number.isFinite(id) || id <= 0) return res.redirect("/panier");
+
+    if (!Number.isFinite(quantite)) return res.redirect("/panier");
+
+    if (quantite <= 0) {
+      req.session.panier = req.session.panier.filter((p) => p.id !== id);
+    } else {
+      const item = req.session.panier.find((p) => p.id === id);
+      if (item) item.quantite = quantite;
+    }
+
+    res.redirect("/panier");
+  } catch (err) {
+    console.error(err);
+    res.redirect("/panier?erreur=serveur");
+  }
+});
+
+// Supprimer un article du panier
+app.post("/panier/supprimer", requireAuth, (req, res) => {
+  try {
+    const id = parseInt(req.body.id);
+
+    if (req.session.panier && Number.isFinite(id)) {
+      req.session.panier = req.session.panier.filter((p) => p.id !== id);
+    }
+
+    res.redirect("/panier");
+  } catch (err) {
+    console.error(err);
+    res.redirect("/panier?erreur=serveur");
+  }
+});
+
+// Confirmer la commande
+app.post("/commande/confirmer", requireAuth, async (req, res) => {
+  if (req.session.user.role !== "client") return res.redirect("/");
+
+  const panier = req.session.panier || [];
+  if (!panier.length) return res.redirect("/panier");
+
+  const clientId = req.session.user.id;
+  const today = new Date().toISOString().slice(0, 10);
+
+  try {
+    // Vérifie le stock pour chaque produit
+    for (const item of panier) {
+      const [rows] = await db.query(
+        "SELECT Quantite FROM Stock WHERE ID_produit = ?",
+        [item.id]
+      );
+      if (!rows.length || rows[0].Quantite < item.quantite) {
+        return res.redirect("/panier?erreur=stock");
+      }
+    }
+
+    // Crée la commande
+    const [result] = await db.query(
+      "INSERT INTO Commande (Date_commande, Statut_commande, ID_client) VALUES (?, 'En cours', ?)",
+      [today, clientId]
+    );
+    const commandeId = result.insertId;
+
+    // Insère les produits vendus + met à jour le stock
+    for (const item of panier) {
+      await db.query(
+        "INSERT INTO Vendu (ID_produit, ID_commande, Quantite) VALUES (?, ?, ?)",
+        [item.id, commandeId, item.quantite]
+      );
+      await db.query(
+        "UPDATE Stock SET Quantite = Quantite - ?, Date_derniere_maj = ? WHERE ID_produit = ?",
+        [item.quantite, today, item.id]
+      );
+    }
+
+    // Vide le panier
+    req.session.panier = [];
+    res.redirect(`/espace-client/commande/${commandeId}`);
+  } catch (err) {
+    console.error(err);
+    res.redirect("/panier?erreur=serveur");
+  }
+});
+
+// ------------------
 // Auth
 // ------------------
 
@@ -120,7 +278,6 @@ app.post("/auth/login", async (req, res) => {
     if (managers.length) {
       const m = managers[0];
 
-      // Gestionnaires : mot de passe en clair (comme ton seed/script)
       if (m.Mot_de_passe !== password) {
         return res.render("pages/login", {
           title: "Connexion",
@@ -139,7 +296,6 @@ app.post("/auth/login", async (req, res) => {
       return res.redirect("/dashboard");
     }
 
-    // Clients : mot de passe hashé SHA256 (comme ton seed/script)
     const hash = crypto.createHash("sha256").update(password).digest("hex");
 
     const [clients] = await db.query("SELECT * FROM Clients WHERE Email = ?", [
@@ -301,20 +457,16 @@ app.get("/dashboard/produits", requireGestionnaire, async (req, res) => {
   }
 });
 
-app.post(
-  "/dashboard/produits/supprimer/:id",
-  requireGestionnaire,
-  async (req, res) => {
-    try {
-      await db.query("DELETE FROM Stock WHERE ID_produit = ?", [req.params.id]);
-      await db.query("DELETE FROM Produits WHERE ID_produit = ?", [req.params.id]);
-      res.redirect("/dashboard/produits");
-    } catch (err) {
-      console.error(err);
-      res.redirect("/erreur");
-    }
+app.post("/dashboard/produits/supprimer/:id", requireGestionnaire, async (req, res) => {
+  try {
+    await db.query("DELETE FROM Stock WHERE ID_produit = ?", [req.params.id]);
+    await db.query("DELETE FROM Produits WHERE ID_produit = ?", [req.params.id]);
+    res.redirect("/dashboard/produits");
+  } catch (err) {
+    console.error(err);
+    res.redirect("/erreur");
   }
-);
+});
 
 // ------------------
 // Dashboard - Clients
@@ -330,19 +482,15 @@ app.get("/dashboard/clients", requireGestionnaire, async (req, res) => {
   }
 });
 
-app.post(
-  "/dashboard/clients/supprimer/:id",
-  requireGestionnaire,
-  async (req, res) => {
-    try {
-      await db.query("DELETE FROM Clients WHERE ID_client = ?", [req.params.id]);
-      res.redirect("/dashboard/clients");
-    } catch (err) {
-      console.error(err);
-      res.redirect("/erreur");
-    }
+app.post("/dashboard/clients/supprimer/:id", requireGestionnaire, async (req, res) => {
+  try {
+    await db.query("DELETE FROM Clients WHERE ID_client = ?", [req.params.id]);
+    res.redirect("/dashboard/clients");
+  } catch (err) {
+    console.error(err);
+    res.redirect("/erreur");
   }
-);
+});
 
 // ------------------
 // Dashboard - Commandes
@@ -366,25 +514,21 @@ app.get("/dashboard/commandes", requireGestionnaire, async (req, res) => {
   }
 });
 
-app.post(
-  "/dashboard/commandes/statut/:id",
-  requireGestionnaire,
-  async (req, res) => {
-    try {
-      const { statut } = req.body;
+app.post("/dashboard/commandes/statut/:id", requireGestionnaire, async (req, res) => {
+  try {
+    const { statut } = req.body;
 
-      await db.query(
-        "UPDATE Commande SET Statut_commande = ? WHERE ID_commande = ?",
-        [statut, req.params.id]
-      );
+    await db.query(
+      "UPDATE Commande SET Statut_commande = ? WHERE ID_commande = ?",
+      [statut, req.params.id]
+    );
 
-      res.redirect("/dashboard/commandes");
-    } catch (err) {
-      console.error(err);
-      res.redirect("/erreur");
-    }
+    res.redirect("/dashboard/commandes");
+  } catch (err) {
+    console.error(err);
+    res.redirect("/erreur");
   }
-);
+});
 
 // ------------------
 // Dashboard - Rapports
@@ -481,7 +625,7 @@ app.get("/espace-client", requireClient, async (req, res) => {
   }
 });
 
-// Commande détail (client) : produits + total
+// Détail commande : produits + total
 app.get("/espace-client/commande/:id", requireAuth, async (req, res) => {
   try {
     const [commande] = await db.query(
