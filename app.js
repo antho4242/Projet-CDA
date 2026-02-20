@@ -412,20 +412,20 @@ app.post("/auth/register", async (req, res) => {
 
 app.get("/dashboard", requireGestionnaire, async (req, res) => {
   try {
-    const [produits] = await db.query("SELECT COUNT(*) AS total FROM Produits");
-    const [clients] = await db.query("SELECT COUNT(*) AS total FROM Clients");
-    const [commandes] = await db.query("SELECT COUNT(*) AS total FROM Commande");
-    const [faibleStock] = await db.query(
-      "SELECT COUNT(*) AS total FROM Stock WHERE Quantite <= 5"
-    );
+    const [produits]      = await db.query("SELECT COUNT(*) AS total FROM Produits");
+    const [clients]       = await db.query("SELECT COUNT(*) AS total FROM Clients");
+    const [commandes]     = await db.query("SELECT COUNT(*) AS total FROM Commande");
+    const [faibleStock]   = await db.query("SELECT COUNT(*) AS total FROM Stock WHERE Quantite <= 5");
+    const [gestionnaires] = await db.query("SELECT COUNT(*) AS total FROM Gestionnaires"); // ← manquait
 
     res.render("pages/dashboard/index", {
       title: "Dashboard",
       stats: {
-        produits: produits[0].total,
-        clients: clients[0].total,
-        commandes: commandes[0].total,
-        faibleStock: faibleStock[0].total,
+        produits:      produits[0].total,
+        clients:       clients[0].total,
+        commandes:     commandes[0].total,
+        faibleStock:   faibleStock[0].total,
+        gestionnaires: gestionnaires[0].total  // ← manquait
       },
     });
   } catch (err) {
@@ -724,6 +724,85 @@ app.post("/dashboard/produits/modifier/:id", requireGestionnaire, async (req, re
       error: "Erreur serveur."
     });
   }
+});
+
+
+// ------------------
+// Dashboard - Gestionnaires
+// ------------------
+app.get("/dashboard/gestionnaires", requireGestionnaire, async (req, res) => {
+  const [gestionnaires] = await db.query(
+    "SELECT * FROM Gestionnaires ORDER BY Nom"
+  );
+  res.render("pages/dashboard/gestionnaires", {
+    title: "Gestionnaires",
+    gestionnaires,
+    success: req.query.success || null
+  });
+});
+
+app.get("/dashboard/gestionnaires/ajouter", requireGestionnaire, (req, res) => {
+  res.render("pages/dashboard/gestionnaire-form", {
+    title: "Ajouter un gestionnaire",
+    error: null
+  });
+});
+
+app.post("/dashboard/gestionnaires/ajouter", requireGestionnaire, async (req, res) => {
+  const { nom, prenom, email, password, password_confirm, role } = req.body;
+
+  // Validation
+  if (!nom || !prenom || !email || !password || !role) {
+    return res.render("pages/dashboard/gestionnaire-form", {
+      title: "Ajouter un gestionnaire",
+      error: "Tous les champs sont obligatoires."
+    });
+  }
+
+  if (password !== password_confirm) {
+    return res.render("pages/dashboard/gestionnaire-form", {
+      title: "Ajouter un gestionnaire",
+      error: "Les mots de passe ne correspondent pas."
+    });
+  }
+
+  try {
+    // Vérifie si l'email est déjà utilisé
+    const [existing] = await db.query(
+      "SELECT Id FROM Gestionnaires WHERE Email = ?", [email]
+    );
+    if (existing.length) {
+      return res.render("pages/dashboard/gestionnaire-form", {
+        title: "Ajouter un gestionnaire",
+        error: "Un gestionnaire avec cet email existe déjà."
+      });
+    }
+
+    const today = new Date().toISOString().slice(0, 10);
+
+    await db.query(`
+      INSERT INTO Gestionnaires (Nom, Prenom, Email, Mot_de_passe, Role, Date_de_creation)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `, [nom, prenom, email, password, role, today]);
+
+    res.redirect("/dashboard/gestionnaires?success=1");
+
+  } catch (err) {
+    console.error(err);
+    res.render("pages/dashboard/gestionnaire-form", {
+      title: "Ajouter un gestionnaire",
+      error: "Erreur serveur."
+    });
+  }
+});
+
+app.post("/dashboard/gestionnaires/supprimer/:id", requireGestionnaire, async (req, res) => {
+  // Empêche de supprimer son propre compte
+  if (parseInt(req.params.id) === req.session.user.id) {
+    return res.redirect("/dashboard/gestionnaires");
+  }
+  await db.query("DELETE FROM Gestionnaires WHERE Id = ?", [req.params.id]);
+  res.redirect("/dashboard/gestionnaires");
 });
 
 

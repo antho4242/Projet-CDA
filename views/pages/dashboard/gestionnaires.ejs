@@ -1,0 +1,61 @@
+<%- include("../../partials/header", { title }) %>
+<%- include("../../partials/nav") %>
+
+<main class="container main">
+  <div class="page-header">
+    <h1>👤 Gestion des gestionnaires</h1>
+    <div style="display:flex; gap:10px">
+      <a href="/dashboard/gestionnaires/ajouter" class="btn btn--primary">➕ Ajouter</a>
+      <a href="/dashboard" class="btn btn--ghost">← Dashboard</a>
+    </div>
+  </div>
+
+  <% if (success) { %>
+    <div class="alert alert--success">Gestionnaire ajouté avec succès ✅</div>
+  <% } %>
+
+  <div class="table-wrapper">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Email</th>
+          <th>Rôle</th>
+          <th>Créé le</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% gestionnaires.forEach(g => { %>
+          <tr>
+            <td>#<%= g.Id %></td>
+            <td><%= g.Nom %></td>
+            <td><%= g.Prenom %></td>
+            <td><%= g.Email %></td>
+            <td>
+              <span class="badge badge--<%= g.Role === 'admin' ? 'success' : 'warning' %>">
+                <%= g.Role %>
+              </span>
+            </td>
+            <td><%= formatDate(g.Date_de_creation) %></td>
+            <td>
+              <% if (g.Id !== user.id) { %>
+                <form action="/dashboard/gestionnaires/supprimer/<%= g.Id %>"
+                      method="POST"
+                      onsubmit="return confirm('Supprimer ce gestionnaire ?')">
+                  <button class="btn btn--danger btn--sm">🗑 Supprimer</button>
+                </form>
+              <% } else { %>
+                <span style="color:var(--muted); font-size:13px">Vous</span>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<%- include("../../partials/footer") %>
