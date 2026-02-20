@@ -9,7 +9,7 @@
 
   <section class="card">
     <div class="commande-info">
-      <p>Date : <strong><%= commande.Date_commande %></strong></p>
+      <p>Date : <strong><%= formatDate(commande.Date_commande) %></strong></p>
       <p>Statut :
         <span class="badge badge--<%= commande.Statut_commande === 'Terminé' ? 'success' : commande.Statut_commande === 'Annulée' ? 'danger' : 'warning' %>">
           <%= commande.Statut_commande %>

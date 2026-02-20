@@ -32,7 +32,7 @@
             <% commandes.forEach(c => { %>
               <tr>
                 <td>#<%= c.ID_commande %></td>
-                <td><%= c.Date_commande %></td>
+                <td><%= formatDate(c.Date_commande) %></td>
                 <td><%= c.nb_produits %> article(s)</td>
                 <td>
                   <span class="badge badge--<%= c.Statut_commande === 'Terminé' ? 'success' : c.Statut_commande === 'Annulée' ? 'danger' : 'warning' %>">
