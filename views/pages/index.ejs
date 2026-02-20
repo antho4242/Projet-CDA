@@ -1,19 +1,40 @@
-<%- include("../partials/header", { title }) %>
+<%- include("../partials/header", { title: "Accueil" }) %>
 <%- include("../partials/nav") %>
 
 <main class="container main">
-  <section class="card">
-    <h1>Bienvenue sur la boutique</h1>
+  <section class="hero">
+    <div class="hero__tag">Maroquinerie Artisanale</div>
+    <div class="hero__text">
+      <h1>L'élégance du <span class="gradient-text">cuir</span> fait main</h1>
+      <p>Sacs, portefeuilles, ceintures et accessoires fabriqués à la main avec les meilleurs cuirs sélectionnés.</p>
+      <div class="hero__actions">
+        <a href="/boutique" class="btn btn--primary">Découvrir la boutique</a>
+        <a href="/dab" class="btn btn--ghost">Simuler un paiement</a>
+      </div>
+    </div>
+  </section>
 
-    <p>
-      Ce projet évolue progressivement vers une version complète en Express avec EJS.
-      L’objectif est de structurer correctement les vues et la navigation.
-    </p>
-
-    <p>
-      La base du site est désormais opérationnelle. Les prochaines améliorations
-      concerneront l’ajout de nouvelles pages et de fonctionnalités dynamiques.
-    </p>
+  <section class="features">
+    <div class="feature-card">
+      <div class="feature-card__icon">🧵</div>
+      <h3>Artisanat d'exception</h3>
+      <p>Chaque pièce est confectionnée à la main par nos artisans avec des matériaux nobles.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card__icon">🌿</div>
+      <h3>Cuir pleine fleur</h3>
+      <p>Tanné végétal, durable et respectueux de l'environnement. Une matière qui se bonifie avec le temps.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card__icon">🚚</div>
+      <h3>Livraison soignée</h3>
+      <p>Emballage cadeau raffiné, livraison partout en France sous 3 à 5 jours ouvrés.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card__icon">✨</div>
+      <h3>Garantie à vie</h3>
+      <p>Nous réparons toutes nos créations. Votre satisfaction est notre priorité absolue.</p>
+    </div>
   </section>
 </main>
 

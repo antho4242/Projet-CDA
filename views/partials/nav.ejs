@@ -1,5 +1,7 @@
 <nav class="nav">
   <div class="container nav__inner">
+    <a class="nav__brand" href="/">Maroquinerie</a>
+
     <a class="nav__link" href="/">Accueil</a>
     <a class="nav__link" href="/boutique">Boutique</a>
     <a class="nav__link" href="/dab">DAB</a>
@@ -10,26 +12,22 @@
     <% } %>
 
     <% if (user && user.role === 'client') { %>
+      <a class="nav__link" href="/panier">🛒 Panier</a>
       <a class="nav__link" href="/espace-client">Mon espace</a>
-    <% } %>
-
-    <% if (user && user.role === 'client') { %>
-      <a class="nav__link nav__link--panier" href="/panier">
-        🛒 Panier </a>
     <% } %>
 
     <div class="nav__spacer"></div>
 
     <% if (!user) { %>
       <a class="btn btn--ghost" href="/auth/login">Connexion</a>
-      <a class="btn btn--primary" href="/auth/register">S'inscrire</a>
+      <a class="btn btn--accent" href="/auth/register">S'inscrire</a>
     <% } else { %>
       <span class="nav__welcome">
-        👤 <strong><%= user.prenom %></strong>
+        <%= user.prenom %>
         <span class="role-badge role-badge--<%= user.role %>"><%= user.role %></span>
       </span>
       <form action="/auth/logout" method="POST">
-        <button class="btn btn--danger" type="submit">Déconnexion</button>
+        <button class="btn btn--ghost" type="submit">Déconnexion</button>
       </form>
     <% } %>
   </div>
