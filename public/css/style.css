@@ -346,3 +346,19 @@ p { color: var(--muted); line-height: 1.6; }
   font-weight: 700;
 }
 .panier-recap__total strong { color: var(--accent); }
+
+
+/* --- Formulaire produit --- */
+.card--form { max-width: 700px; }
+.form__actions { display: flex; gap: 12px; margin-top: 8px; }
+.required { color: var(--danger); }
+.input--disabled {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: var(--muted);
+  font-size: 15px;
+  width: 100%;
+}
+small { font-size: 12px; color: var(--muted); margin-top: 4px; display: block; }

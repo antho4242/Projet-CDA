@@ -593,6 +593,140 @@ app.get("/dashboard/rapports", requireGestionnaire, async (req, res) => {
   }
 });
 
+
+
+// ------------------
+// Dashboard - Ajout produit
+// ------------------
+app.get("/dashboard/produits/ajouter", requireGestionnaire, async (req, res) => {
+  const [categories] = await db.query("SELECT * FROM Categories ORDER BY nom");
+  res.render("pages/dashboard/produit-form", {
+    title: "Ajouter un produit",
+    produit: null,
+    categories,
+    error: null
+  });
+});
+
+app.post("/dashboard/produits/ajouter", requireGestionnaire, async (req, res) => {
+  const { Reference, Nom_produit, Prix, Taille_produit, ID_categorie, Quantite } = req.body;
+  const [categories] = await db.query("SELECT * FROM Categories ORDER BY nom");
+
+  // Validation
+  if (!Reference || !Nom_produit || !Prix || !ID_categorie) {
+    return res.render("pages/dashboard/produit-form", {
+      title: "Ajouter un produit",
+      produit: req.body,
+      categories,
+      error: "Tous les champs obligatoires doivent être remplis."
+    });
+  }
+
+  try {
+    // Vérifie que la référence est unique
+    const [existing] = await db.query(
+      "SELECT ID_produit FROM Produits WHERE Reference = ?", [Reference]
+    );
+    if (existing.length) {
+      return res.render("pages/dashboard/produit-form", {
+        title: "Ajouter un produit",
+        produit: req.body,
+        categories,
+        error: "Cette référence existe déjà."
+      });
+    }
+
+    // Insère le produit
+    const [result] = await db.query(`
+      INSERT INTO Produits (Reference, Nom_produit, Prix, Taille_produit, ID_categorie)
+      VALUES (?, ?, ?, ?, ?)
+    `, [Reference, Nom_produit, parseFloat(Prix), Taille_produit, parseInt(ID_categorie)]);
+
+    // Insère le stock
+    const today = new Date().toISOString().slice(0, 10);
+    await db.query(`
+      INSERT INTO Stock (Quantite, Date_derniere_maj, ID_produit)
+      VALUES (?, ?, ?)
+    `, [parseInt(Quantite) || 0, today, result.insertId]);
+
+    res.redirect("/dashboard/produits");
+
+  } catch (err) {
+    console.error(err);
+    res.render("pages/dashboard/produit-form", {
+      title: "Ajouter un produit",
+      produit: req.body,
+      categories,
+      error: "Erreur serveur."
+    });
+  }
+});
+
+
+// ------------------
+// Dashboard - Modifier produit
+// ------------------
+app.get("/dashboard/produits/modifier/:id", requireGestionnaire, async (req, res) => {
+  const [rows] = await db.query(`
+    SELECT p.*, s.Quantite AS stock
+    FROM Produits p
+    LEFT JOIN Stock s ON s.ID_produit = p.ID_produit
+    WHERE p.ID_produit = ?
+  `, [req.params.id]);
+
+  if (!rows.length) return res.redirect("/dashboard/produits");
+
+  const [categories] = await db.query("SELECT * FROM Categories ORDER BY nom");
+
+  res.render("pages/dashboard/produit-form", {
+    title: "Modifier le produit",
+    produit: rows[0],
+    categories,
+    error: null
+  });
+});
+
+app.post("/dashboard/produits/modifier/:id", requireGestionnaire, async (req, res) => {
+  const { Nom_produit, Prix, Taille_produit, ID_categorie, Quantite } = req.body;
+  const [categories] = await db.query("SELECT * FROM Categories ORDER BY nom");
+
+  if (!Nom_produit || !Prix || !ID_categorie) {
+    return res.render("pages/dashboard/produit-form", {
+      title: "Modifier le produit",
+      produit: { ...req.body, ID_produit: req.params.id },
+      categories,
+      error: "Tous les champs obligatoires doivent être remplis."
+    });
+  }
+
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+
+    await db.query(`
+      UPDATE Produits
+      SET Nom_produit = ?, Prix = ?, Taille_produit = ?, ID_categorie = ?
+      WHERE ID_produit = ?
+    `, [Nom_produit, parseFloat(Prix), Taille_produit, parseInt(ID_categorie), req.params.id]);
+
+    await db.query(`
+      UPDATE Stock SET Quantite = ?, Date_derniere_maj = ?
+      WHERE ID_produit = ?
+    `, [parseInt(Quantite) || 0, today, req.params.id]);
+
+    res.redirect("/dashboard/produits");
+
+  } catch (err) {
+    console.error(err);
+    res.render("pages/dashboard/produit-form", {
+      title: "Modifier le produit",
+      produit: { ...req.body, ID_produit: req.params.id },
+      categories,
+      error: "Erreur serveur."
+    });
+  }
+});
+
+
 // ------------------
 // Espace client
 // ------------------

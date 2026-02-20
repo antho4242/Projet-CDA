@@ -1,0 +1,88 @@
+<%- include("../../partials/header", { title }) %>
+<%- include("../../partials/nav") %>
+
+<main class="container main">
+  <div class="page-header">
+    <h1><%= produit ? '✏️ Modifier le produit' : '➕ Ajouter un produit' %></h1>
+    <a href="/dashboard/produits" class="btn btn--ghost">← Retour</a>
+  </div>
+
+  <section class="card card--form">
+
+    <% if (error) { %>
+      <div class="alert alert--error"><%= error %></div>
+    <% } %>
+
+    <form action="<%= produit ? `/dashboard/produits/modifier/${produit.ID_produit}` : '/dashboard/produits/ajouter' %>"
+          method="POST" class="form">
+
+      <% if (!produit || !produit.ID_produit) { %>
+        <div class="form__group">
+          <label>Référence <span class="required">*</span></label>
+          <input type="text" name="Reference"
+                 value="<%= produit?.Reference || '' %>"
+                 placeholder="Ex: SAC006" required maxlength="7" />
+          <small>7 caractères max, unique</small>
+        </div>
+      <% } else { %>
+        <div class="form__group">
+          <label>Référence</label>
+          <input type="text" value="<%= produit.Reference %>" disabled class="input--disabled" />
+        </div>
+      <% } %>
+
+      <div class="form__row">
+        <div class="form__group">
+          <label>Nom du produit <span class="required">*</span></label>
+          <input type="text" name="Nom_produit"
+                 value="<%= produit?.Nom_produit || '' %>"
+                 placeholder="Ex: Sac cabas cuir noir" required />
+        </div>
+        <div class="form__group">
+          <label>Taille</label>
+          <input type="text" name="Taille_produit"
+                 value="<%= produit?.Taille_produit || '' %>"
+                 placeholder="Ex: Moyen, 95cm, Unique" />
+        </div>
+      </div>
+
+      <div class="form__row">
+        <div class="form__group">
+          <label>Prix (€) <span class="required">*</span></label>
+          <input type="number" name="Prix" step="0.01" min="0"
+                 value="<%= produit?.Prix || '' %>"
+                 placeholder="Ex: 149.99" required />
+        </div>
+        <div class="form__group">
+          <label>Quantité en stock</label>
+          <input type="number" name="Quantite" min="0"
+                 value="<%= produit?.stock ?? 0 %>"
+                 placeholder="Ex: 10" />
+        </div>
+      </div>
+
+      <div class="form__group">
+        <label>Catégorie <span class="required">*</span></label>
+        <select name="ID_categorie" class="form__select" required>
+          <option value="">-- Choisir une catégorie --</option>
+          <% categories.forEach(cat => { %>
+            <option value="<%= cat.ID_categorie %>"
+              <%= produit?.ID_categorie == cat.ID_categorie ? 'selected' : '' %>>
+              <%= cat.nom %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="form__actions">
+        <button type="submit" class="btn btn--primary">
+          <%= produit?.ID_produit ? '💾 Enregistrer les modifications' : '➕ Ajouter le produit' %>
+        </button>
+        <a href="/dashboard/produits" class="btn btn--ghost">Annuler</a>
+      </div>
+
+    </form>
+  </section>
+</main>
+
+<%- include("../../partials/footer") %>
