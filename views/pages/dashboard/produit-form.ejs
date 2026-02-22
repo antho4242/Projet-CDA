@@ -3,14 +3,14 @@
 
 <main class="container main">
   <div class="page-header">
-    <h1><%= produit ? '✏️ Modifier le produit' : '➕ Ajouter un produit' %></h1>
-    <a href="/dashboard/produits" class="btn btn--ghost">← Retour</a>
+    <h1><%- produit ? icon('edit', 32) : icon('plus', 32) %> <%= produit ? 'Modifier le produit' : 'Ajouter un produit' %></h1>
+    <a href="/dashboard/produits" class="btn btn--ghost"><%- icon('back', 16) %> Retour</a>
   </div>
 
   <section class="card card--form">
 
     <% if (error) { %>
-      <div class="alert alert--error"><%= error %></div>
+      <div class="alert alert--error"><%- icon('alert', 18) %> <%= error %></div>
     <% } %>
 
     <form action="<%= produit ? `/dashboard/produits/modifier/${produit.ID_produit}` : '/dashboard/produits/ajouter' %>"
@@ -76,9 +76,13 @@
 
       <div class="form__actions">
         <button type="submit" class="btn btn--primary">
-          <%= produit?.ID_produit ? '💾 Enregistrer les modifications' : '➕ Ajouter le produit' %>
+          <% if (produit?.ID_produit) { %>
+            <%- icon('save', 18) %> Enregistrer les modifications
+          <% } else { %>
+            <%- icon('plus', 18) %> Ajouter le produit
+          <% } %>
         </button>
-        <a href="/dashboard/produits" class="btn btn--ghost">Annuler</a>
+        <a href="/dashboard/produits" class="btn btn--ghost"><%- icon('cancel', 16) %> Annuler</a>
       </div>
 
     </form>

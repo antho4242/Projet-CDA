@@ -3,14 +3,14 @@
 
 <main class="container main">
   <div class="page-header">
-    <h1>➕ Ajouter un gestionnaire</h1>
-    <a href="/dashboard/gestionnaires" class="btn btn--ghost">← Retour</a>
+    <h1><%- icon('plus', 32) %> Ajouter un gestionnaire</h1>
+    <a href="/dashboard/gestionnaires" class="btn btn--ghost"><%- icon('back', 16) %> Retour</a>
   </div>
 
   <section class="card card--form">
 
     <% if (error) { %>
-      <div class="alert alert--error"><%= error %></div>
+      <div class="alert alert--error"><%- icon('alert', 18) %> <%= error %></div>
     <% } %>
 
     <form action="/dashboard/gestionnaires/ajouter" method="POST" class="form">
@@ -51,8 +51,8 @@
       </div>
 
       <div class="form__actions">
-        <button type="submit" class="btn btn--primary">➕ Créer le gestionnaire</button>
-        <a href="/dashboard/gestionnaires" class="btn btn--ghost">Annuler</a>
+        <button type="submit" class="btn btn--primary"><%- icon('plus', 18) %> Créer le gestionnaire</button>
+        <a href="/dashboard/gestionnaires" class="btn btn--ghost"><%- icon('cancel', 16) %> Annuler</a>
       </div>
 
     </form>

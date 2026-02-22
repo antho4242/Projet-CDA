@@ -3,8 +3,8 @@
 
 <main class="container main">
   <div class="page-header">
-    <h1>👥 Gestion des clients</h1>
-    <a href="/dashboard" class="btn btn--ghost">← Dashboard</a>
+    <h1><%- icon('users', 32) %> Gestion des clients</h1>
+    <a href="/dashboard" class="btn btn--ghost"><%- icon('back', 16) %> Dashboard</a>
   </div>
 
   <div class="table-wrapper">
@@ -30,11 +30,11 @@
             <td><%= c.Email %></td>
             <td><%= c.Telephone %></td>
             <td><%= c.Ville %></td>
-            <td><%= c.Date_inscription %></td>
+            <td><%= formatDate(c.Date_inscription) %></td>
             <td>
               <form action="/dashboard/clients/supprimer/<%= c.ID_client %>" method="POST"
                     onsubmit="return confirm('Supprimer ce client ?')">
-                <button class="btn btn--danger btn--sm">Supprimer</button>
+                <button class="btn btn--danger btn--sm"><%- icon('trash', 16) %> Supprimer</button>
               </form>
             </td>
           </tr>

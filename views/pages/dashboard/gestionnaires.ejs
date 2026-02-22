@@ -3,15 +3,15 @@
 
 <main class="container main">
   <div class="page-header">
-    <h1>👤 Gestion des gestionnaires</h1>
+    <h1><%- icon('user', 32) %> Gestion des gestionnaires</h1>
     <div style="display:flex; gap:10px">
-      <a href="/dashboard/gestionnaires/ajouter" class="btn btn--primary">➕ Ajouter</a>
-      <a href="/dashboard" class="btn btn--ghost">← Dashboard</a>
+      <a href="/dashboard/gestionnaires/ajouter" class="btn btn--primary"><%- icon('plus', 18) %> Ajouter</a>
+      <a href="/dashboard" class="btn btn--ghost"><%- icon('back', 16) %> Dashboard</a>
     </div>
   </div>
 
   <% if (success) { %>
-    <div class="alert alert--success">Gestionnaire ajouté avec succès ✅</div>
+    <div class="alert alert--success"><%- icon('check', 18) %> Gestionnaire ajouté avec succès</div>
   <% } %>
 
   <div class="table-wrapper">
@@ -45,7 +45,7 @@
                 <form action="/dashboard/gestionnaires/supprimer/<%= g.Id %>"
                       method="POST"
                       onsubmit="return confirm('Supprimer ce gestionnaire ?')">
-                  <button class="btn btn--danger btn--sm">🗑 Supprimer</button>
+                  <button class="btn btn--danger btn--sm"><%- icon('trash', 16) %> Supprimer</button>
                 </form>
               <% } else { %>
                 <span style="color:var(--muted); font-size:13px">Vous</span>

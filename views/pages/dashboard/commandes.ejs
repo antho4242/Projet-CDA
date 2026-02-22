@@ -3,8 +3,8 @@
 
 <main class="container main">
   <div class="page-header">
-    <h1>🛒 Gestion des commandes</h1>
-    <a href="/dashboard" class="btn btn--ghost">← Dashboard</a>
+    <h1><%- icon('orders', 32) %> Gestion des commandes</h1>
+    <a href="/dashboard" class="btn btn--ghost"><%- icon('back', 16) %> Dashboard</a>
   </div>
 
   <div class="table-wrapper">
@@ -23,7 +23,7 @@
           <tr>
             <td>#<%= c.ID_commande %></td>
             <td><%= c.Nom %> <%= c.Prenom %></td>
-            <td><%= c.Date_commande %></td>
+            <td><%= formatDate(c.Date_commande) %></td>
             <td>
               <span class="badge badge--<%= c.Statut_commande === 'Terminé' ? 'success' : c.Statut_commande === 'Annulée' ? 'danger' : 'warning' %>">
                 <%= c.Statut_commande %>
@@ -36,7 +36,7 @@
                   <option value="Terminé"   <%= c.Statut_commande === 'Terminé'   ? 'selected' : '' %>>Terminé</option>
                   <option value="Annulée"   <%= c.Statut_commande === 'Annulée'   ? 'selected' : '' %>>Annulée</option>
                 </select>
-                <button class="btn btn--primary btn--sm">Mettre à jour</button>
+                <button class="btn btn--primary btn--sm"><%- icon('save', 16) %> Mettre à jour</button>
               </form>
             </td>
           </tr>

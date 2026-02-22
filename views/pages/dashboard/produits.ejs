@@ -3,10 +3,10 @@
 
 <main class="container main">
   <div class="page-header">
-    <h1>📦 Gestion des produits</h1>
+    <h1><%- icon('package', 32) %> Gestion des produits</h1>
     <div style="display:flex; gap:10px">
-      <a href="/dashboard/produits/ajouter" class="btn btn--primary">➕ Ajouter</a>
-      <a href="/dashboard" class="btn btn--ghost">← Dashboard</a>
+      <a href="/dashboard/produits/ajouter" class="btn btn--primary"><%- icon('plus', 18) %> Ajouter</a>
+      <a href="/dashboard" class="btn btn--ghost"><%- icon('back', 16) %> Dashboard</a>
     </div>
   </div>
 
@@ -36,11 +36,11 @@
             </td>
             <td style="display:flex; gap:8px">
               <a href="/dashboard/produits/modifier/<%= p.ID_produit %>"
-                 class="btn btn--ghost btn--sm">✏️ Modifier</a>
+                 class="btn btn--ghost btn--sm"><%- icon('edit', 16) %> Modifier</a>
               <form action="/dashboard/produits/supprimer/<%= p.ID_produit %>"
                     method="POST"
                     onsubmit="return confirm('Supprimer ce produit ?')">
-                <button class="btn btn--danger btn--sm">🗑 Supprimer</button>
+                <button class="btn btn--danger btn--sm"><%- icon('trash', 16) %> Supprimer</button>
               </form>
             </td>
           </tr>

@@ -3,14 +3,14 @@
 
 <main class="container main">
   <div class="page-header">
-    <h1>📊 Rapports d'analyse</h1>
-    <a href="/dashboard" class="btn btn--ghost">← Dashboard</a>
+    <h1><%- icon('chart', 32) %> Rapports d'analyse</h1>
+    <a href="/dashboard" class="btn btn--ghost"><%- icon('back', 16) %> Dashboard</a>
   </div>
 
   <div class="rapports-grid">
 
     <section class="card">
-      <h2>⚠️ Produits à faible stock</h2>
+      <h2><%- icon('alert', 24) %> Produits à faible stock</h2>
       <table class="table">
         <thead><tr><th>Produit</th><th>Stock</th></tr></thead>
         <tbody>
@@ -28,7 +28,7 @@
     </section>
 
     <section class="card">
-      <h2>🏆 Produits les plus vendus</h2>
+      <h2><%- icon('chart', 24) %> Produits les plus vendus</h2>
       <table class="table">
         <thead><tr><th>Produit</th><th>Qté vendue</th></tr></thead>
         <tbody>
@@ -43,7 +43,7 @@
     </section>
 
     <section class="card">
-      <h2>❤️ Clients les plus fidèles</h2>
+      <h2><%- icon('users', 24) %> Clients les plus fidèles</h2>
       <table class="table">
         <thead><tr><th>Client</th><th>Commandes</th></tr></thead>
         <tbody>
@@ -58,7 +58,7 @@
     </section>
 
     <section class="card">
-      <h2>❌ Clients qui annulent</h2>
+      <h2><%- icon('cancel', 24) %> Clients qui annulent</h2>
       <table class="table">
         <thead><tr><th>Client</th><th>Annulations</th></tr></thead>
         <tbody>

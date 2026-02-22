@@ -3,8 +3,8 @@
 
 <main class="container main">
   <div class="page-header">
-    <h1>🛒 Commande #<%= commande.ID_commande %></h1>
-    <a href="/espace-client" class="btn btn--ghost">← Mes commandes</a>
+    <h1><%- icon('orders', 32) %> Commande #<%= commande.ID_commande %></h1>
+    <a href="/espace-client" class="btn btn--ghost"><%- icon('back', 16) %> Mes commandes</a>
   </div>
 
   <section class="card">
@@ -49,7 +49,7 @@
             method="POST"
             onsubmit="return confirm('Annuler cette commande ?')"
             style="margin-top:20px">
-        <button class="btn btn--danger">❌ Annuler la commande</button>
+        <button class="btn btn--danger"><%- icon('cancel', 18) %> Annuler la commande</button>
       </form>
     <% } %>
   </section>

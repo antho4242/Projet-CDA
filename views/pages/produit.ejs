@@ -2,8 +2,8 @@
 <%- include("../partials/nav") %>
 
 <main class="container main">
-  <a href="/boutique" class="btn" style="margin-bottom:20px; display:inline-block;">
-    ← Retour boutique
+  <a href="/boutique" class="btn btn--ghost" style="margin-bottom:20px; display:inline-flex; align-items:center; gap:6px;">
+    <%- icon('back', 16) %> Retour boutique
   </a>
   <div id="produit-content"><p class="loading">Chargement...</p></div>
 </main>
@@ -24,9 +24,9 @@ fetch(`/api/produits/${id}`)
       ? `<form action="/panier/ajouter" method="POST" style="display:inline">
            <input type="hidden" name="id" value="${p.ID_produit}" />
            <input type="hidden" name="quantite" value="1" />
-           <button type="submit" class="btn btn--primary">🛒 Ajouter au panier</button>
+           <button type="submit" class="btn btn--primary">Ajouter au panier</button>
          </form>`
-      : `<a href="/auth/login" class="btn btn--primary">🔐 Connectez-vous pour commander</a>`;
+      : `<a href="/auth/login" class="btn btn--primary">Connectez-vous pour commander</a>`;
 
     document.getElementById("produit-content").innerHTML = `
       <section class="card produit-detail">
@@ -43,7 +43,7 @@ fetch(`/api/produits/${id}`)
           <div class="produit-detail__prix">${parseFloat(p.Prix).toFixed(2)} €</div>
           <div class="produit-detail__actions">
             ${panierBtn}
-            <a href="/dab/euros/${p.Prix}" class="btn btn--ghost">🏧 Voir en coupures</a>
+            <a href="/dab/euros/${p.Prix}" class="btn btn--ghost">Voir en coupures</a>
           </div>
         </div>
       </section>`;

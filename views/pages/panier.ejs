@@ -2,7 +2,7 @@
 <%- include("../partials/nav") %>
 
 <main class="container main">
-  <h1>🛒 Mon Panier</h1>
+  <h1><%- icon('cart', 32) %> Mon Panier</h1>
 
   <% if (typeof query !== 'undefined' && query?.erreur === 'stock') { %>
     <div class="alert alert--error">Stock insuffisant pour un ou plusieurs articles.</div>
@@ -64,9 +64,8 @@
         </div>
 
         <form action="/commande/confirmer" method="POST" style="margin-top:20px">
-          <button class="btn btn--primary" style="width:100%">
-            ✅ Confirmer la commande
-          </button>
+          <button class="btn btn--danger btn--sm"><%- icon('trash', 16) %></button>
+              <%- icon('check', 18) %> Confirmer la commande
         </form>
 
         <a href="/boutique" class="btn btn--ghost" style="width:100%; margin-top:8px; text-align:center; display:block">

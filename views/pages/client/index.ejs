@@ -4,17 +4,17 @@
 <main class="container main">
 
   <section class="client-hero">
-    <h1>👤 Mon Espace</h1>
+    <h1><%- icon('user', 32) %> Mon Espace</h1>
     <p>Bonjour <strong><%= user.prenom %> <%= user.nom %></strong> — <%= user.email %></p>
   </section>
 
   <section class="card">
-    <h2>🛒 Mes commandes</h2>
+    <h2><%- icon('orders', 24) %> Mes commandes</h2>
 
     <% if (!commandes.length) { %>
       <p style="color:var(--muted)">Vous n'avez pas encore de commandes.</p>
       <a href="/boutique" class="btn btn--primary" style="margin-top:12px">
-        Découvrir la boutique →
+        Découvrir la boutique <%- icon('back', 16) %>
       </a>
     <% } else { %>
       <div class="table-wrapper">
@@ -41,13 +41,13 @@
                 </td>
                 <td style="display:flex; gap:8px;">
                   <a href="/espace-client/commande/<%= c.ID_commande %>"
-                     class="btn btn--ghost btn--sm">Voir</a>
+                     class="btn btn--ghost btn--sm"><%- icon('eye', 16) %> Voir</a>
 
                   <% if (c.Statut_commande === 'En cours') { %>
                     <form action="/espace-client/commande/<%= c.ID_commande %>/annuler"
                           method="POST"
                           onsubmit="return confirm('Annuler cette commande ?')">
-                      <button class="btn btn--danger btn--sm">Annuler</button>
+                      <button class="btn btn--danger btn--sm"><%- icon('cancel', 16) %> Annuler</button>
                     </form>
                   <% } %>
                 </td>
