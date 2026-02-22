@@ -5,14 +5,14 @@
   <h1><%- icon('cart', 32) %> Mon Panier</h1>
 
   <% if (typeof query !== 'undefined' && query?.erreur === 'stock') { %>
-    <div class="alert alert--error">Stock insuffisant pour un ou plusieurs articles.</div>
+    <div class="alert alert--error"><%- icon('alert', 18) %> Stock insuffisant pour un ou plusieurs articles.</div>
   <% } %>
 
   <% if (!produits.length) { %>
     <section class="card" style="text-align:center; padding:40px">
       <p style="font-size:18px">Votre panier est vide.</p>
       <a href="/boutique" class="btn btn--primary" style="margin-top:16px">
-        Découvrir la boutique →
+        <%- icon('store', 18) %> Découvrir la boutique
       </a>
     </section>
   <% } else { %>
@@ -37,7 +37,7 @@
 
               <form action="/panier/supprimer" method="POST">
                 <input type="hidden" name="id" value="<%= p.ID_produit %>" />
-                <button class="btn btn--danger btn--sm">🗑</button>
+                <button class="btn btn--danger btn--sm"><%- icon('trash', 16) %></button>
               </form>
             </div>
 
@@ -64,12 +64,13 @@
         </div>
 
         <form action="/commande/confirmer" method="POST" style="margin-top:20px">
-          <button class="btn btn--danger btn--sm"><%- icon('trash', 16) %></button>
-              <%- icon('check', 18) %> Confirmer la commande
+          <button type="submit" class="btn btn--primary" style="width:100%">
+            <%- icon('check', 18) %> Confirmer la commande
+          </button>
         </form>
 
         <a href="/boutique" class="btn btn--ghost" style="width:100%; margin-top:8px; text-align:center; display:block">
-          ← Continuer mes achats
+          <%- icon('back', 16) %> Continuer mes achats
         </a>
       </aside>
     </div>

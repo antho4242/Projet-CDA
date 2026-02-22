@@ -2,8 +2,7 @@ const express = require("express");
 const path    = require("path");
 const session = require("express-session");
 const crypto  = require("crypto");
-const dotenv = require("dotenv");
-dotenv.config({ debug: false });
+require("dotenv").config({ quiet: true });
 
 const { calculerCoupures } = require("./modules/dab");
 const apiRouter            = require("./routes/api");
@@ -563,6 +562,19 @@ app.get("/dashboard/commandes", requireGestionnaire, async (req, res) => {
       JOIN Clients cl ON c.ID_client = cl.ID_client
       ORDER BY c.Date_commande DESC
     `);
+
+    // Charge les produits pour chaque commande
+    for (const commande of commandes) {
+      const [produits] = await db.query(`
+        SELECT p.Nom_produit, p.Prix, v.Quantite,
+               (p.Prix * v.Quantite) AS sous_total
+        FROM Vendu v
+        JOIN Produits p ON v.ID_produit = p.ID_produit
+        WHERE v.ID_commande = ?
+      `, [commande.ID_commande]);
+      commande.produits = produits;
+    }
+
     res.render("pages/dashboard/commandes", { title: "Commandes", commandes });
   } catch (err) {
     console.error(err);
@@ -573,10 +585,51 @@ app.get("/dashboard/commandes", requireGestionnaire, async (req, res) => {
 app.post("/dashboard/commandes/statut/:id", requireGestionnaire, async (req, res) => {
   try {
     const { statut } = req.body;
+    const today = new Date().toISOString().slice(0, 10);
+
+    // Récupère le statut actuel
+    const [rows] = await db.query(
+      "SELECT Statut_commande FROM Commande WHERE ID_commande = ?",
+      [req.params.id]
+    );
+
+    if (!rows.length) return res.redirect("/dashboard/commandes");
+
+    const ancienStatut = rows[0].Statut_commande;
+
+    // Si on passe EN annulée depuis un statut actif → remet le stock
+    if (statut === "Annulée" && ancienStatut !== "Annulée") {
+      const [produits] = await db.query(
+        "SELECT ID_produit, Quantite FROM Vendu WHERE ID_commande = ?",
+        [req.params.id]
+      );
+      for (const p of produits) {
+        await db.query(
+          "UPDATE Stock SET Quantite = Quantite + ?, Date_derniere_maj = ? WHERE ID_produit = ?",
+          [p.Quantite, today, p.ID_produit]
+        );
+      }
+    }
+
+    // Si on réactive une commande annulée → redéduit le stock
+    if (ancienStatut === "Annulée" && statut !== "Annulée") {
+      const [produits] = await db.query(
+        "SELECT ID_produit, Quantite FROM Vendu WHERE ID_commande = ?",
+        [req.params.id]
+      );
+      for (const p of produits) {
+        await db.query(
+          "UPDATE Stock SET Quantite = Quantite - ?, Date_derniere_maj = ? WHERE ID_produit = ?",
+          [p.Quantite, today, p.ID_produit]
+        );
+      }
+    }
+
     await db.query(
       "UPDATE Commande SET Statut_commande = ? WHERE ID_commande = ?",
       [statut, req.params.id]
     );
+
     res.redirect("/dashboard/commandes");
   } catch (err) {
     console.error(err);
@@ -763,6 +816,21 @@ app.post("/espace-client/commande/:id/annuler", requireClient, async (req, res) 
     if (!rows.length) return res.redirect("/espace-client");
     if (rows[0].Statut_commande !== "En cours") {
       return res.redirect(`/espace-client/commande/${req.params.id}`);
+    }
+
+    // Récupère les produits de la commande
+    const [produits] = await db.query(
+      "SELECT ID_produit, Quantite FROM Vendu WHERE ID_commande = ?",
+      [req.params.id]
+    );
+
+    // Remet le stock
+    const today = new Date().toISOString().slice(0, 10);
+    for (const p of produits) {
+      await db.query(
+        "UPDATE Stock SET Quantite = Quantite + ?, Date_derniere_maj = ? WHERE ID_produit = ?",
+        [p.Quantite, today, p.ID_produit]
+      );
     }
 
     await db.query(

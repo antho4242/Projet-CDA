@@ -16,6 +16,7 @@
           <th>Date</th>
           <th>Statut</th>
           <th>Modifier statut</th>
+          <th>Détail</th>
         </tr>
       </thead>
       <tbody>
@@ -39,11 +40,54 @@
                 <button class="btn btn--primary btn--sm"><%- icon('save', 16) %> Mettre à jour</button>
               </form>
             </td>
+            <td>
+              <button class="btn btn--ghost btn--sm" onclick="toggleDetail(<%= c.ID_commande %>)">
+                <%- icon('eye', 16) %> Voir
+              </button>
+            </td>
+          </tr>
+          
+          <tr id="detail-<%= c.ID_commande %>" style="display:none; background:var(--bg-subtle)">
+            <td colspan="6" style="padding:0">
+              <table class="table" style="margin:0; border:none">
+                <thead>
+                  <tr>
+                    <th>Produit</th>
+                    <th>Prix unitaire</th>
+                    <th>Quantité</th>
+                    <th>Sous-total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% c.produits.forEach(p => { %>
+                    <tr>
+                      <td><%= p.Nom_produit %></td>
+                      <td><%= parseFloat(p.Prix).toFixed(2) %> €</td>
+                      <td><%= p.Quantite %></td>
+                      <td><strong style="color:var(--accent)"><%= parseFloat(p.sous_total).toFixed(2) %> €</strong></td>
+                    </tr>
+                  <% }) %>
+                  <tr>
+                    <td colspan="3" style="text-align:right; font-weight:700;">Total</td>
+                    <td><strong style="color:var(--accent)">
+                      <%= c.produits.reduce((sum, p) => sum + Number(p.sous_total), 0).toFixed(2) %> €
+                    </strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
           </tr>
         <% }) %>
       </tbody>
     </table>
   </div>
 </main>
+
+<script>
+function toggleDetail(id) {
+  const row = document.getElementById('detail-' + id);
+  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+</script>
 
 <%- include("../../partials/footer") %>
