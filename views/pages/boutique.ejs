@@ -16,25 +16,48 @@
 fetch("/api/produits")
   .then(res => res.json())
   .then(produits => {
+    
+    const ordre = [
+      "Bagages",
+      "Sacs à main",
+      "Portefeuilles",
+      "Porte-cartes",
+      "Ceintures",
+      "Accessoires en cuir"
+    ];
+
     const parCategorie = produits.reduce((acc, p) => {
       acc[p.categorie] = acc[p.categorie] || [];
       acc[p.categorie].push(p);
       return acc;
     }, {});
 
+    
+    const categoriesOrdonnees = [
+      ...ordre.filter(c => parCategorie[c]),
+      ...Object.keys(parCategorie).filter(c => !ordre.includes(c))
+    ];
+
     let html = "";
-    for (const [cat, items] of Object.entries(parCategorie)) {
+    for (const cat of categoriesOrdonnees) {
+      const items = parCategorie[cat];
       html += `
         <section class="boutique-section">
           <h2 class="boutique-section__title">${cat}</h2>
           <div class="produits-grid">`;
 
       items.forEach(p => {
+        const img = p.image || 'default.avif';
         html += `
           <a href="/boutique/produit/${p.ID_produit}" class="produit-card">
+            <div class="produit-card__img">
+              <img src="/images/produits/${img}"
+                   alt="${p.Nom_produit}"
+                   onerror="this.onerror=null; this.src='/images/produits/default.avif'">
+            </div>
             <div class="produit-card__body">
               <h3>${p.Nom_produit}</h3>
-              <span class="produit-card__taille">${p.Taille_produit}</span>
+              <span class="produit-card__taille">${p.Taille_produit || ''}</span>
             </div>
             <div class="produit-card__footer">
               <span class="produit-card__prix">${parseFloat(p.Prix).toFixed(2)} €</span>

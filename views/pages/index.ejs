@@ -1,10 +1,16 @@
 <%- include("../partials/header", { title: "Accueil" }) %>
 <%- include("../partials/nav") %>
 
-<main class="container main">
+<main>
+
   <section class="hero">
-    <div class="hero__tag">Maroquinerie Artisanale</div>
-    <div class="hero__text">
+    <video class="hero__video" autoplay muted loop playsinline>
+      <source src="/images/hero-bg.mp4" type="video/mp4">
+    </video>
+    <div class="hero__overlay"></div>
+
+    <div class="hero__content">
+      <span class="hero__tag">Maroquinerie Artisanale</span>
       <h1>L'élégance du <span class="gradient-text">cuir</span> fait main</h1>
       <p>Sacs, portefeuilles, ceintures et accessoires fabriqués à la main avec les meilleurs cuirs sélectionnés.</p>
       <div class="hero__actions">
@@ -14,33 +20,34 @@
     </div>
   </section>
 
+  <div class="container main">
+    <section class="features">
+      <div class="feature-card">
+        <div class="feature-card__icon"><%- icon('edit', 32) %></div>
+        <h3>Fait main</h3>
+        <p>Chaque pièce est confectionnée à la main par nos artisans avec des matériaux nobles.</p>
+      </div>
 
-  <section class="features">
-    <div class="feature-card">
-      <div class="feature-card__icon"><%- icon('edit', 32) %></div>
-      <h3>Fait main</h3>
-      <p>Chaque pièce est confectionnée à la main par nos artisans avec des matériaux nobles.</p>
-    </div>
+      <div class="feature-card">
+        <div class="feature-card__icon"><%- icon('check', 32) %></div>
+        <h3>Cuir naturel</h3>
+        <p>Tanné végétal, durable et respectueux de l'environnement. Une matière qui se bonifie avec le temps.</p>
+      </div>
 
-    <div class="feature-card">
-      <div class="feature-card__icon"><%- icon('check', 32) %></div>
-      <h3>Cuir naturel</h3>
-      <p>Tanné végétal, durable et respectueux de l'environnement. Une matière qui se bonifie avec le temps.</p>
-    </div>
+      <div class="feature-card">
+        <div class="feature-card__icon"><%- icon('package', 32) %></div>
+        <h3>Livraison soignée</h3>
+        <p>Emballage cadeau raffiné, livraison partout en France sous 3 à 5 jours ouvrés.</p>
+      </div>
 
-    <div class="feature-card">
-      <div class="feature-card__icon"><%- icon('package', 32) %></div>
-      <h3>Livraison soignée</h3>
-      <p>Emballage cadeau raffiné, livraison partout en France sous 3 à 5 jours ouvrés.</p>
-    </div>
+      <div class="feature-card">
+        <div class="feature-card__icon"><%- icon('save', 32) %></div>
+        <h3>Garantie à vie</h3>
+        <p>Nous réparons toutes nos créations. Votre satisfaction est notre priorité absolue.</p>
+      </div>
+    </section>
+  </div>
 
-    <div class="feature-card">
-      <div class="feature-card__icon"><%- icon('save', 32) %></div>
-      <h3>Garantie à vie</h3>
-      <p>Nous réparons toutes nos créations. Votre satisfaction est notre priorité absolue.</p>
-    </div>
-
-  </section>
 </main>
 
 <%- include("../partials/footer") %>

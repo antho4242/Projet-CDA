@@ -2,7 +2,8 @@ const express = require("express");
 const path    = require("path");
 const session = require("express-session");
 const crypto  = require("crypto");
-require("dotenv").config();
+const dotenv = require("dotenv");
+dotenv.config({ debug: false });
 
 const { calculerCoupures } = require("./modules/dab");
 const apiRouter            = require("./routes/api");
@@ -57,8 +58,10 @@ function icon(name, size = 18) {
 // ------------------
 // Config Express 
 // ------------------
-
-app.use(express.static(path.join(__dirname, "public")));
+app.get('/images/hero-bg.mp4', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'images', 'hero-bg.mp4'));
+});
+app.use(express.static(path.join(__dirname, "public"), { index: false }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 

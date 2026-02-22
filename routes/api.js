@@ -2,13 +2,13 @@ const express = require("express");
 const router = express.Router();
 const db = require("../database/db");
 
-// Produits (option : filtre par catégorie via ?categorie=...)
+// Produits
 router.get("/produits", async (req, res) => {
   try {
     let sql = `
       SELECT p.ID_produit, p.Reference, p.Nom_produit, p.Prix,
-             p.Taille_produit, c.nom AS categorie,
-             s.Quantite AS stock
+               p.Taille_produit, p.image, c.nom AS categorie,
+              s.Quantite AS stock
       FROM Produits p
       JOIN Categories c ON p.ID_categorie = c.ID_categorie
       LEFT JOIN Stock s ON s.ID_produit = p.ID_produit

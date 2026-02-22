@@ -18,7 +18,7 @@ fetch(`/api/produits/${id}`)
     document.title = p.Nom_produit;
     const img = p.image
       ? `/images/produits/${p.image}`
-      : `/images/produits/default.jpg`;
+      : `/images/produits/default.avif`;
 
     const panierBtn = isClient
       ? `<form action="/panier/ajouter" method="POST" style="display:inline">
@@ -32,7 +32,7 @@ fetch(`/api/produits/${id}`)
       <section class="card produit-detail">
         <div class="produit-detail__img">
           <img src="${img}" alt="${p.Nom_produit}"
-               onerror="this.src='/images/produits/default.jpg'" />
+               onerror="this.src='/images/produits/default.avif'" />
         </div>
         <div class="produit-detail__info">
           <span class="produit-detail__cat">${p.categorie}</span>

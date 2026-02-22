@@ -3,10 +3,10 @@
 
 <main class="container main">
   <section class="card">
-    <h1>🏧 Répartition pour <%= montant %> <%= devise %></h1>
+    <h1><%- icon('dab', 32) %> Répartition pour <%= montant %> <%= devise %></h1>
 
     <% if (repartition.length === 0) { %>
-      <div class="alert alert--error">Montant invalide ou nul.</div>
+      <div class="alert alert--error"><%- icon('alert', 18) %> Montant invalide ou nul.</div>
     <% } else { %>
 
       <div class="dab-grid">
@@ -23,13 +23,13 @@
       </div>
 
       <div class="dab-summary">
-        <p>💡 Plus petite coupure utilisée : <strong><%= plusPetite %> <%= devise === 'euros' ? '€' : '$' %></strong></p>
+        <%- icon('check', 16) %> Plus petite coupure utilisée : <strong><%= plusPetite %> <%= devise === 'euros' ? '€' : '$' %></strong>
       </div>
 
     <% } %>
 
-    <a href="/dab" class="btn btn--primary" style="margin-top:20px; display:inline-block;">
-      ← Nouveau calcul
+    <a href="/dab" class="btn btn--primary" style="margin-top:20px; display:inline-flex;">
+      <%- icon('back', 16) %> Nouveau calcul
     </a>
   </section>
 </main>
