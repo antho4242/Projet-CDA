@@ -3,7 +3,30 @@
 -- Création des tables + données de test
 -- ============================================================
 
+CREATE DATABASE IF NOT EXISTS maroquinerie;
+USE maroquinerie;
+
+
+SET NAMES utf8mb4;
+SET character_set_client = utf8mb4;
+SET character_set_connection = utf8mb4;
+SET character_set_results = utf8mb4;
+
+-- ============================================================
+-- RESET 
+-- ============================================================
+
 SET FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS Vendu;
+DROP TABLE IF EXISTS Commande;
+DROP TABLE IF EXISTS Stock;
+DROP TABLE IF EXISTS Produits;
+DROP TABLE IF EXISTS Categories;
+DROP TABLE IF EXISTS Clients;
+DROP TABLE IF EXISTS Gestionnaires;
+
+SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================================
 -- TABLES
@@ -17,12 +40,12 @@ CREATE TABLE IF NOT EXISTS Gestionnaires (
   Mot_de_passe    VARCHAR(255) NOT NULL,
   Role            VARCHAR(50)  NOT NULL DEFAULT 'gestionnaire',
   Date_de_creation DATE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS Categories (
   ID_categorie INT AUTO_INCREMENT PRIMARY KEY,
   nom          VARCHAR(100) NOT NULL
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS Clients (
   ID_client        INT AUTO_INCREMENT PRIMARY KEY,
@@ -36,18 +59,18 @@ CREATE TABLE IF NOT EXISTS Clients (
   Pays             VARCHAR(100),
   Date_inscription DATE,
   Mot_de_passe     VARCHAR(255) NOT NULL
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS Produits (
-  ID_produit    INT AUTO_INCREMENT PRIMARY KEY,
-  Reference     VARCHAR(50)    NOT NULL UNIQUE,
-  Nom_produit   VARCHAR(200)   NOT NULL,
-  Prix          DECIMAL(10,2)  NOT NULL,
+  ID_produit     INT AUTO_INCREMENT PRIMARY KEY,
+  Reference      VARCHAR(50)    NOT NULL UNIQUE,
+  Nom_produit    VARCHAR(200)   NOT NULL,
+  Prix           DECIMAL(10,2)  NOT NULL,
   Taille_produit VARCHAR(50),
-  ID_categorie  INT NOT NULL,
-  image         VARCHAR(255),
+  ID_categorie   INT NOT NULL,
+  image          VARCHAR(255),
   FOREIGN KEY (ID_categorie) REFERENCES Categories(ID_categorie)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS Stock (
   ID_stock          INT AUTO_INCREMENT PRIMARY KEY,
@@ -55,15 +78,15 @@ CREATE TABLE IF NOT EXISTS Stock (
   Date_derniere_maj DATE,
   ID_produit        INT  NOT NULL UNIQUE,
   FOREIGN KEY (ID_produit) REFERENCES Produits(ID_produit)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS Commande (
-  ID_commande      INT AUTO_INCREMENT PRIMARY KEY,
-  Date_commande    DATE NOT NULL,
-  Statut_commande  VARCHAR(50) NOT NULL DEFAULT 'En cours',
-  ID_client        INT NOT NULL,
+  ID_commande     INT AUTO_INCREMENT PRIMARY KEY,
+  Date_commande   DATE NOT NULL,
+  Statut_commande VARCHAR(50) NOT NULL DEFAULT 'En cours',
+  ID_client       INT NOT NULL,
   FOREIGN KEY (ID_client) REFERENCES Clients(ID_client)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS Vendu (
   ID_vendu    INT AUTO_INCREMENT PRIMARY KEY,
@@ -72,8 +95,7 @@ CREATE TABLE IF NOT EXISTS Vendu (
   Quantite    INT NOT NULL DEFAULT 1,
   FOREIGN KEY (ID_produit)  REFERENCES Produits(ID_produit),
   FOREIGN KEY (ID_commande) REFERENCES Commande(ID_commande)
-);
-
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- DONNÉES
@@ -92,40 +114,40 @@ INSERT INTO Categories (ID_categorie, nom) VALUES
 
 INSERT INTO Produits (Reference, Nom_produit, Prix, Taille_produit, ID_categorie, image) VALUES
 ('SAC001', 'Sac cabas cuir noir',         289.99, 'Grand',  1, 'SAC001.jpg'),
-('SAC002', 'Sac bandoulière cognac',       199.99, 'Petit',  1, 'SAC002.jpg'),
-('SAC003', 'Sac à main bordeaux',          349.99, 'Moyen',  1, 'SAC003.jpg'),
-('SAC004', 'Sac tote cuir naturel',        259.99, 'Grand',  1, 'SAC004.jpg'),
-('SAC005', 'Pochette cuir marron',         129.99, 'Petit',  1, 'SAC005.jpg'),
+('SAC002', 'Sac bandoulière cognac',      199.99, 'Petit',  1, 'SAC002.jpg'),
+('SAC003', 'Sac à main bordeaux',         349.99, 'Moyen',  1, 'SAC003.jpg'),
+('SAC004', 'Sac tote cuir naturel',       259.99, 'Grand',  1, 'SAC004.jpg'),
+('SAC005', 'Pochette cuir marron',        129.99, 'Petit',  1, 'SAC005.jpg'),
 
-('PRT001', 'Portefeuille long noir',        99.99, 'Unique', 2, 'PRT001.jpg'),
-('PRT002', 'Portefeuille compact cognac',   79.99, 'Unique', 2, 'PRT002.jpg'),
-('PRT003', 'Portefeuille zippé bordeaux',   89.99, 'Unique', 2, 'PRT003.jpg'),
-('PRT004', 'Portefeuille homme marron',     74.99, 'Unique', 2, 'PRT004.jpg'),
-('PRT005', 'Portefeuille femme nude',       84.99, 'Unique', 2, 'PRT005.jpg'),
+('PRT001', 'Portefeuille long noir',       99.99, 'Unique', 2, 'PRT001.jpg'),
+('PRT002', 'Portefeuille compact cognac',  79.99, 'Unique', 2, 'PRT002.jpg'),
+('PRT003', 'Portefeuille zippé bordeaux',  89.99, 'Unique', 2, 'PRT003.jpg'),
+('PRT004', 'Portefeuille homme marron',    74.99, 'Unique', 2, 'PRT004.jpg'),
+('PRT005', 'Portefeuille femme nude',      84.99, 'Unique', 2, 'PRT005.jpg'),
 
-('CNT001', 'Ceinture cuir noir 35mm',       89.99, '90 cm',  3, 'CNT001.jpg'),
-('CNT002', 'Ceinture cuir marron 35mm',     89.99, '95 cm',  3, 'CNT002.jpg'),
-('CNT003', 'Ceinture tressée cognac',       99.99, '100 cm', 3, 'CNT003.jpg'),
-('CNT004', 'Ceinture fine noir femme',      79.99, '80 cm',  3, 'CNT004.jpg'),
-('CNT005', 'Ceinture western marron',      109.99, '95 cm',  3, 'CNT005.jpg'),
+('CNT001', 'Ceinture cuir noir 35mm',      89.99, '90 cm',   3, 'CNT001.jpg'),
+('CNT002', 'Ceinture cuir marron 35mm',    89.99, '95 cm',   3, 'CNT002.jpg'),
+('CNT003', 'Ceinture tressée cognac',      99.99, '100 cm',  3, 'CNT003.jpg'),
+('CNT004', 'Ceinture fine noir femme',     79.99, '80 cm',   3, 'CNT004.jpg'),
+('CNT005', 'Ceinture western marron',     109.99, '95 cm',   3, 'CNT005.jpg'),
 
-('BAG001', 'Valise cabine cuir cognac',    699.99, '55 cm',  4, 'BAG001.jpg'),
-('BAG002', 'Sac de voyage noir',           399.99, '48 cm',  4, 'BAG002.jpg'),
-('BAG003', 'Sac week-end marron',          449.99, '52 cm',  4, 'BAG003.jpg'),
-('BAG004', 'Valise soute cuir naturel',    899.99, '70 cm',  4, 'BAG004.jpg'),
-('BAG005', 'Bagage à main bordeaux',       349.99, '45 cm',  4, 'BAG005.jpg'),
+('BAG001', 'Valise cabine cuir cognac',   699.99, '55 cm',   4, 'BAG001.jpg'),
+('BAG002', 'Sac de voyage noir',          399.99, '48 cm',   4, 'BAG002.jpg'),
+('BAG003', 'Sac week-end marron',         449.99, '52 cm',   4, 'BAG003.jpg'),
+('BAG004', 'Valise soute cuir naturel',   899.99, '70 cm',   4, 'BAG004.jpg'),
+('BAG005', 'Bagage à main bordeaux',      349.99, '45 cm',   4, 'BAG005.jpg'),
 
-('PCT001', 'Porte-cartes slim noir',        39.99, 'Unique', 5, 'PCT001.jpg'),
-('PCT002', 'Porte-cartes cognac',           44.99, 'Unique', 5, 'PCT002.jpg'),
-('PCT003', 'Porte-cartes zippé bordeaux',   49.99, 'Unique', 5, 'PCT003.jpg'),
-('PCT004', 'Porte-cartes marron',           34.99, 'Unique', 5, 'PCT004.jpg'),
-('PCT005', 'Porte-cartes femme rose',       44.99, 'Unique', 5, 'PCT005.jpg'),
+('PCT001', 'Porte-cartes slim noir',       39.99, 'Unique',  5, 'PCT001.jpg'),
+('PCT002', 'Porte-cartes cognac',          44.99, 'Unique',  5, 'PCT002.jpg'),
+('PCT003', 'Porte-cartes zippé bordeaux',  49.99, 'Unique',  5, 'PCT003.jpg'),
+('PCT004', 'Porte-cartes marron',          34.99, 'Unique',  5, 'PCT004.jpg'),
+('PCT005', 'Porte-cartes femme rose',      44.99, 'Unique',  5, 'PCT005.jpg'),
 
-('ACC001', 'Porte-clés cuir noir',          24.99, 'Unique', 6, 'ACC001.jpg'),
-('ACC002', 'Étui passeport cognac',         54.99, 'Unique', 6, 'ACC002.jpg'),
-('ACC003', 'Manchette cuir marron',         69.99, 'Unique', 6, 'ACC003.jpg'),
-('ACC004', 'Carnet cuir noir A5',           79.99, 'Unique', 6, 'ACC004.jpg'),
-('ACC005', 'Porte-monnaie bordeaux',        39.99, 'Unique', 6, 'ACC005.jpg');
+('ACC001', 'Porte-clés cuir noir',         24.99, 'Unique',  6, 'ACC001.jpg'),
+('ACC002', 'Étui passeport cognac',        54.99, 'Unique',  6, 'ACC002.jpg'),
+('ACC003', 'Manchette cuir marron',        69.99, 'Unique',  6, 'ACC003.jpg'),
+('ACC004', 'Carnet cuir noir A5',          79.99, 'Unique',  6, 'ACC004.jpg'),
+('ACC005', 'Porte-monnaie bordeaux',       39.99, 'Unique',  6, 'ACC005.jpg');
 
 INSERT INTO Stock (Quantite, Date_derniere_maj, ID_produit) VALUES
 (12, '2025-01-15', 1),
@@ -165,9 +187,9 @@ INSERT INTO Stock (Quantite, Date_derniere_maj, ID_produit) VALUES
 (25, '2025-01-15', 30);
 
 INSERT INTO Clients (Nom, Prenom, Email, Telephone, Adresse, Ville, CodePostal, Pays, Date_inscription, Mot_de_passe) VALUES
-('Dupont', 'Sophie', 'sophie.dupont@gmail.com', '0612345678', '12 Rue des Roses',        'Paris',    '75008', 'France', '2024-03-01', SHA2('password123', 256)),
-('Martin', 'Lucas',  'lucas.martin@gmail.com',  '0623456789', '5 Avenue Victor Hugo',    'Lyon',     '69006', 'France', '2024-04-15', SHA2('motdepasse',   256)),
-('Bernard','Emma',   'emma.bernard@gmail.com',  '0634567890', '8 Boulevard des Capucines','Bordeaux','33000', 'France', '2024-06-20', SHA2('test1234',      256));
+('Dupont', 'Sophie', 'sophie.dupont@gmail.com', '0612345678', '12 Rue des Roses',         'Paris',    '75008', 'France', '2024-03-01', SHA2('password123', 256)),
+('Martin', 'Lucas',  'lucas.martin@gmail.com',  '0623456789', '5 Avenue Victor Hugo',     'Lyon',     '69006', 'France', '2024-04-15', SHA2('motdepasse',   256)),
+('Bernard','Emma',   'emma.bernard@gmail.com',  '0634567890', '8 Boulevard des Capucines','Bordeaux', '33000', 'France', '2024-06-20', SHA2('test1234',      256));
 
 INSERT INTO Commande (ID_commande, Date_commande, Statut_commande, ID_client) VALUES
 (1, '2024-04-10', 'Terminé',  1),
