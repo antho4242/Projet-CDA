@@ -4,13 +4,14 @@
 <main class="container main">
   <div class="page-header">
     <div>
-      <h1>Dashboard</h1>
+      <h1><%- icon('dashboard', 32) %> Dashboard</h1>
       <p style="color:var(--text-muted); margin-top:4px; font-size:14px">
         Bienvenue, <strong><%= user.prenom %> <%= user.nom %></strong>
       </p>
     </div>
   </div>
 
+  <!-- Stats cards -->
   <div class="stats-grid">
     <a href="/dashboard/produits" class="stat-card">
       <span class="stat-card__icon"><%- icon('package', 22) %></span>
@@ -37,15 +38,135 @@
       <span class="stat-card__val"><%= stats.gestionnaires %></span>
       <span class="stat-card__label">Gestionnaires</span>
     </a>
+    <div class="stat-card">
+      <span class="stat-card__icon"><%- icon('chart', 22) %></span>
+      <span class="stat-card__val" style="font-size:28px"><%= stats.ca %> €</span>
+      <span class="stat-card__label">Chiffre d'affaires</span>
+    </div>
   </div>
 
+  <!-- Navigation -->
   <div class="dashboard-nav">
-    <a href="/dashboard/produits"     class="btn btn--primary"><%- icon('package', 15) %> Produits</a>
-    <a href="/dashboard/clients"      class="btn btn--ghost"><%- icon('users', 15) %> Clients</a>
-    <a href="/dashboard/commandes"    class="btn btn--ghost"><%- icon('orders', 15) %> Commandes</a>
-    <a href="/dashboard/rapports"     class="btn btn--ghost"><%- icon('chart', 15) %> Rapports</a>
-    <a href="/dashboard/gestionnaires"class="btn btn--ghost"><%- icon('key', 15) %> Gestionnaires</a>
+    <a href="/dashboard/produits"      class="btn btn--primary"><%- icon('package', 15) %> Produits</a>
+    <a href="/dashboard/clients"       class="btn btn--ghost"><%- icon('users', 15) %> Clients</a>
+    <a href="/dashboard/commandes"     class="btn btn--ghost"><%- icon('orders', 15) %> Commandes</a>
+    <a href="/dashboard/rapports"      class="btn btn--ghost"><%- icon('chart', 15) %> Rapports</a>
+    <a href="/dashboard/gestionnaires" class="btn btn--ghost"><%- icon('key', 15) %> Gestionnaires</a>
+  </div>
+
+  <!-- Graphiques -->
+  <div class="dashboard-charts">
+
+    <!-- Ventes par catégorie -->
+    <div class="card">
+      <h2 style="font-size:18px; margin-bottom:20px"><%- icon('chart', 20) %> Ventes par catégorie</h2>
+      <canvas id="chartVentes" height="260"></canvas>
+    </div>
+
+    <!-- Commandes par statut -->
+    <div class="card">
+      <h2 style="font-size:18px; margin-bottom:20px"><%- icon('orders', 20) %> Commandes par statut</h2>
+      <canvas id="chartStatuts" height="260"></canvas>
+    </div>
+
+    <!-- Stock faible -->
+    <div class="card dashboard-charts__full">
+      <h2 style="font-size:18px; margin-bottom:20px"><%- icon('alert', 20) %> Produits à faible stock</h2>
+      <canvas id="chartStock" height="120"></canvas>
+    </div>
+
   </div>
 </main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+  const accent   = '#8B6914';
+  const danger   = '#C0392B';
+  const success  = '#27AE60';
+  const warning  = '#D4870A';
+  const muted    = '#6B6560';
+  const border   = '#E8E3DB';
+
+  Chart.defaults.font.family = 'Inter, sans-serif';
+  Chart.defaults.color       = muted;
+
+  // --- Ventes par catégorie  ---
+  const ventesData = <%- JSON.stringify(ventesParCat) %>;
+  new Chart(document.getElementById('chartVentes'), {
+    type: 'bar',
+    data: {
+      labels: ventesData.map(v => v.categorie),
+      datasets: [{
+        label: 'Quantité vendue',
+        data: ventesData.map(v => v.total),
+        backgroundColor: accent,
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: border } },
+        y: { grid: { color: border }, beginAtZero: true, ticks: { stepSize: 1 } }
+      }
+    }
+  });
+
+  // --- Commandes par statut  ---
+  const statutsData = <%- JSON.stringify(commandesParStatut) %>;
+  const statutColors = statutsData.map(s =>
+    s.Statut_commande === 'Terminé'  ? success :
+    s.Statut_commande === 'Annulée'  ? danger  : warning
+  );
+  new Chart(document.getElementById('chartStatuts'), {
+    type: 'doughnut',
+    data: {
+      labels: statutsData.map(s => s.Statut_commande),
+      datasets: [{
+        data: statutsData.map(s => s.total),
+        backgroundColor: statutColors,
+        borderWidth: 0,
+        hoverOffset: 8,
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '65%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { padding: 20, usePointStyle: true }
+        }
+      }
+    }
+  });
+
+  // --- Stock faible ---
+  const stockData = <%- JSON.stringify(stockFaible) %>;
+  new Chart(document.getElementById('chartStock'), {
+    type: 'bar',
+    data: {
+      labels: stockData.map(s => s.Nom_produit),
+      datasets: [{
+        label: 'Stock restant',
+        data: stockData.map(s => s.Quantite),
+        backgroundColor: stockData.map(s => s.Quantite <= 2 ? danger : warning),
+        borderRadius: 4,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: border }, beginAtZero: true, ticks: { stepSize: 1 } },
+        y: { grid: { display: false } }
+      }
+    }
+  });
+</script>
 
 <%- include("../../partials/footer") %>
