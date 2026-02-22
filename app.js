@@ -172,6 +172,14 @@ app.post("/panier/ajouter", requireAuth, async (req, res) => {
 
     if (!Number.isFinite(id) || id <= 0) return res.redirect("/boutique");
 
+    // Vérifie le stock avant d'ajouter
+    const [rows] = await db.query(
+      "SELECT Quantite FROM Stock WHERE ID_produit = ?", [id]
+    );
+    if (!rows.length || rows[0].Quantite === 0) {
+      return res.redirect("/boutique?erreur=rupture");
+    }
+
     if (!req.session.panier) req.session.panier = [];
 
     const existing = req.session.panier.find(p => p.id === id);
@@ -378,6 +386,34 @@ app.get("/dashboard", requireGestionnaire, async (req, res) => {
     const [faibleStock]   = await db.query("SELECT COUNT(*) AS total FROM Stock WHERE Quantite <= 5");
     const [gestionnaires] = await db.query("SELECT COUNT(*) AS total FROM Gestionnaires");
 
+    // Données graphiques
+    const [ventesParCat] = await db.query(`
+      SELECT c.nom AS categorie, SUM(v.Quantite) AS total
+      FROM Vendu v
+      JOIN Produits p ON v.ID_produit = p.ID_produit
+      JOIN Categories c ON p.ID_categorie = c.ID_categorie
+      GROUP BY c.ID_categorie ORDER BY total DESC
+    `);
+
+    const [commandesParStatut] = await db.query(`
+      SELECT Statut_commande, COUNT(*) AS total
+      FROM Commande GROUP BY Statut_commande
+    `);
+
+    const [ca] = await db.query(`
+      SELECT SUM(p.Prix * v.Quantite) AS total
+      FROM Vendu v
+      JOIN Produits p ON v.ID_produit = p.ID_produit
+      JOIN Commande c ON v.ID_commande = c.ID_commande
+      WHERE c.Statut_commande != 'Annulée'
+    `);
+
+    const [stockFaible] = await db.query(`
+      SELECT p.Nom_produit, s.Quantite
+      FROM Stock s JOIN Produits p ON s.ID_produit = p.ID_produit
+      WHERE s.Quantite <= 5 ORDER BY s.Quantite ASC LIMIT 8
+    `);
+
     res.render("pages/dashboard/index", {
       title: "Dashboard",
       stats: {
@@ -386,7 +422,11 @@ app.get("/dashboard", requireGestionnaire, async (req, res) => {
         commandes:     commandes[0].total,
         faibleStock:   faibleStock[0].total,
         gestionnaires: gestionnaires[0].total,
+        ca:            parseFloat(ca[0].total || 0).toFixed(2),
       },
+      ventesParCat,
+      commandesParStatut,
+      stockFaible,
     });
   } catch (err) {
     console.error(err);
@@ -597,7 +637,7 @@ app.post("/dashboard/commandes/statut/:id", requireGestionnaire, async (req, res
 
     const ancienStatut = rows[0].Statut_commande;
 
-    // Si on passe EN annulée depuis un statut actif → remet le stock
+    
     if (statut === "Annulée" && ancienStatut !== "Annulée") {
       const [produits] = await db.query(
         "SELECT ID_produit, Quantite FROM Vendu WHERE ID_commande = ?",
@@ -611,7 +651,7 @@ app.post("/dashboard/commandes/statut/:id", requireGestionnaire, async (req, res
       }
     }
 
-    // Si on réactive une commande annulée → redéduit le stock
+    
     if (ancienStatut === "Annulée" && statut !== "Annulée") {
       const [produits] = await db.query(
         "SELECT ID_produit, Quantite FROM Vendu WHERE ID_commande = ?",
@@ -751,6 +791,21 @@ app.post("/dashboard/gestionnaires/supprimer/:id", requireGestionnaire, async (r
   }
   await db.query("DELETE FROM Gestionnaires WHERE Id = ?", [req.params.id]);
   res.redirect("/dashboard/gestionnaires");
+});
+
+app.post("/dashboard/produits/stock/:id", requireGestionnaire, async (req, res) => {
+  try {
+    const { quantite } = req.body;
+    const today = new Date().toISOString().slice(0, 10);
+    await db.query(
+      "UPDATE Stock SET Quantite = ?, Date_derniere_maj = ? WHERE ID_produit = ?",
+      [parseInt(quantite) || 0, today, req.params.id]
+    );
+    res.redirect("/dashboard/produits");
+  } catch (err) {
+    console.error(err);
+    res.redirect("/erreur");
+  }
 });
 
 // ------------------

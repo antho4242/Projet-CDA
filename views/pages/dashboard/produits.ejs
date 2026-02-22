@@ -31,8 +31,13 @@
             <td><%= parseFloat(p.Prix).toFixed(2) %> €</td>
             <td><%= p.Taille_produit %></td>
             <td><%= p.categorie %></td>
-            <td class="<%= p.stock <= 5 ? 'text-danger' : '' %>">
-              <%= p.stock ?? 'N/A' %>
+            <td>
+              <form action="/dashboard/produits/stock/<%= p.ID_produit %>" method="POST" class="form-inline">
+                <input type="number" name="quantite" value="<%= p.stock ?? 0 %>"
+                       min="0" class="panier-input"
+                       style="width:70px; border-color: <%= p.stock <= 5 ? 'var(--danger)' : 'var(--border)' %>" />
+                <button class="btn btn--ghost btn--sm"><%- icon('save', 14) %></button>
+              </form>
             </td>
             <td style="display:flex; gap:8px">
               <a href="/dashboard/produits/modifier/<%= p.ID_produit %>"
