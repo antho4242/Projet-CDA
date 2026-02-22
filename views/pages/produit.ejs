@@ -16,34 +16,49 @@ fetch(`/api/produits/${id}`)
   .then(res => { if (!res.ok) throw new Error(); return res.json(); })
   .then(p => {
     document.title = p.Nom_produit;
+
     const img = p.image
       ? `/images/produits/${p.image}`
       : `/images/produits/default.avif`;
 
-    const panierBtn = isClient
-      ? `<form action="/panier/ajouter" method="POST" style="display:inline">
+    const enRupture = p.stock === 0;
+
+    const panierBtn = !isClient
+      ? `<a href="/auth/login" class="btn btn--primary">Se connecter pour commander</a>`
+      : enRupture
+      ? `<button class="btn btn--danger" disabled style="opacity:0.6; cursor:not-allowed">
+           Rupture de stock
+         </button>`
+      : `<form action="/panier/ajouter" method="POST" style="display:inline">
            <input type="hidden" name="id" value="${p.ID_produit}" />
            <input type="hidden" name="quantite" value="1" />
-           <button type="submit" class="btn btn--primary">Ajouter au panier</button>
-         </form>`
-      : `<a href="/auth/login" class="btn btn--primary">Connectez-vous pour commander</a>`;
+           <button type="submit" class="btn btn--primary">
+             Ajouter au panier
+           </button>
+         </form>`;
+
+    const stockLabel = enRupture
+      ? `<strong class="text-danger">Rupture de stock</strong>`
+      : p.stock <= 5
+      ? `<strong class="text-warning">${p.stock} unités restantes</strong>`
+      : `<strong>${p.stock} unités</strong>`;
 
     document.getElementById("produit-content").innerHTML = `
       <section class="card produit-detail">
         <div class="produit-detail__img">
           <img src="${img}" alt="${p.Nom_produit}"
-               onerror="this.src='/images/produits/default.avif'" />
+               onerror="this.onerror=null; this.src='/images/produits/default.avif'" />
         </div>
         <div class="produit-detail__info">
           <span class="produit-detail__cat">${p.categorie}</span>
           <h1>${p.Nom_produit}</h1>
           <p>Taille : <strong>${p.Taille_produit}</strong></p>
           <p>Référence : <strong>${p.Reference}</strong></p>
-          <p>Stock : <strong class="${p.stock <= 5 ? 'text-danger' : ''}">${p.stock} unités</strong></p>
+          <p>Stock : ${stockLabel}</p>
           <div class="produit-detail__prix">${parseFloat(p.Prix).toFixed(2)} €</div>
           <div class="produit-detail__actions">
             ${panierBtn}
-            <a href="/dab/euros/${p.Prix}" class="btn btn--ghost">Voir en coupures</a>
+            <a href="/dab/euros/${p.Prix}" class="btn btn--ghost"><%- icon('dab', 18) %> Voir en coupures</a>
           </div>
         </div>
       </section>`;

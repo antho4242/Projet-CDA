@@ -16,7 +16,6 @@
 fetch("/api/produits")
   .then(res => res.json())
   .then(produits => {
-    
     const ordre = [
       "Bagages",
       "Sacs à main",
@@ -32,7 +31,6 @@ fetch("/api/produits")
       return acc;
     }, {});
 
-    
     const categoriesOrdonnees = [
       ...ordre.filter(c => parCategorie[c]),
       ...Object.keys(parCategorie).filter(c => !ordre.includes(c))
@@ -47,13 +45,17 @@ fetch("/api/produits")
           <div class="produits-grid">`;
 
       items.forEach(p => {
-        const img = p.image || 'default.avif';
+        const img       = p.image || 'default.avif';
+        const enRupture = p.stock === 0;
+
         html += `
-          <a href="/boutique/produit/${p.ID_produit}" class="produit-card">
+          <a href="/boutique/produit/${p.ID_produit}"
+             class="produit-card ${enRupture ? 'produit-card--rupture' : ''}">
             <div class="produit-card__img">
               <img src="/images/produits/${img}"
                    alt="${p.Nom_produit}"
                    onerror="this.onerror=null; this.src='/images/produits/default.avif'">
+              ${enRupture ? '<span class="produit-card__rupture">Rupture</span>' : ''}
             </div>
             <div class="produit-card__body">
               <h3>${p.Nom_produit}</h3>
@@ -61,8 +63,8 @@ fetch("/api/produits")
             </div>
             <div class="produit-card__footer">
               <span class="produit-card__prix">${parseFloat(p.Prix).toFixed(2)} €</span>
-              <span class="produit-card__stock ${p.stock <= 5 ? 'stock--low' : ''}">
-                Stock : ${p.stock ?? 'N/A'}
+              <span class="produit-card__stock ${enRupture ? 'stock--low' : p.stock <= 5 ? 'stock--low' : ''}">
+                ${enRupture ? 'Rupture' : 'Stock : ' + p.stock}
               </span>
             </div>
           </a>`;
