@@ -1,179 +1,197 @@
-# Maroquinerie Artisanale — Application Web
+# Maroquinerie Artisanale --- Application Web
 
-Application de gestion e-commerce pour une maroquinerie artisanale, développée dans le cadre de l'examen **Concepteur Développeur d'Applications (CDA)**.
+Application de gestion e-commerce pour une maroquinerie artisanale,
+développée dans le cadre de l'examen **Concepteur Développeur
+d'Applications (CDA)**.
 
----
+------------------------------------------------------------------------
 
 ## Stack technique
 
-| Élément | Technologie |
-|---|---|
-| Runtime | Node.js |
-| Framework | Express.js |
-| Templates | EJS |
-| Base de données | MySQL (WAMP) |
-| Driver SQL | mysql2/promise (pool) |
-| Authentification | express-session + SHA256 (crypto natif) |
-| CSS | Custom — Inter + Playfair Display |
-| Port | 8080 |
+  Élément            Technologie
+  ------------------ -----------------------------------------
+  Runtime            Node.js
+  Framework          Express.js
+  Templates          EJS
+  Base de données    MySQL 8
+  Conteneurisation   Docker & Docker Compose
+  Driver SQL         mysql2/promise (pool)
+  Authentification   express-session + SHA256 (crypto natif)
+  CSS                Custom --- Inter + Playfair Display
+  Port               8080
 
----
+------------------------------------------------------------------------
 
 ## Prérequis
 
-- [Node.js](https://nodejs.org/) v18+
-- [WAMP](https://www.wampserver.com/) (MySQL sur localhost:3306)
-- Git
+-   Docker Desktop\
+-   Git
 
----
+Aucune installation locale de Node.js ou MySQL n'est nécessaire :
+l'application est entièrement conteneurisée.
 
-## Installation
+------------------------------------------------------------------------
 
-```bash
+## Installation et lancement
+
+``` bash
 # Cloner le dépôt
 git clone https://github.com/antho4242/Projet-CDA.git
 cd Projet-CDA
 
-# Installer les dépendances
-npm install
-
-# Configurer les variables d'environnement
-cp .env.example .env
-# Éditer .env avec vos identifiants MySQL
+# Construire et démarrer les conteneurs
+docker compose up --build
 ```
 
-### Variables d'environnement (`.env`)
+Application accessible sur :
 
-```env
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=
-DB_NAME=maroquinerie
-DB_PORT=3306
+http://localhost:8080
+
+------------------------------------------------------------------------
+
+## Réinitialisation de la base de données
+
+La base `maroquinerie` est automatiquement créée au premier démarrage
+grâce au script :
+
+database/seed.sql
+
+Pour réinitialiser complètement la base :
+
+``` bash
+docker compose down -v
+docker compose up --build
 ```
 
-### Base de données
+------------------------------------------------------------------------
 
-1. Démarrer WAMP
-2. Ouvrir phpMyAdmin
-3. Créer la base `maroquinerie`
-4. Importer `database/seed.sql` (**décocher** "Activer la vérification des clés étrangères")
+## Variables d'environnement
 
-### Lancer l'application
+Les variables sont définies dans `docker-compose.yml`.
 
-```bash
-npm start
-# Serveur disponible sur http://localhost:8080
-```
+Configuration actuelle :
 
----
+    DB_HOST=db
+    DB_USER=root
+    DB_PASSWORD=root
+    DB_NAME=maroquinerie
+    DB_PORT=3306
+
+------------------------------------------------------------------------
 
 ## Structure du projet
 
-```
-Projet-CDA/
-├── app.js                      ← Serveur principal, routes, middlewares
-├── .env                        ← Variables d'environnement (non versionné)
-├── database/
-│   ├── db.js                   ← Pool MySQL mysql2/promise
-│   └── seed.sql                ← Données de test
-├── modules/
-│   └── dab.js                  ← Module DAB — calcul des coupures
-├── routes/
-│   └── api.js                  ← API REST JSON /api/*
-├── public/
-│   ├── css/style.css           ← Design system complet
-│   └── images/produits/        ← Photos produits (Reference.jpg)
-└── views/
-    ├── partials/               ← header, nav, footer
-    └── pages/                  ← Vues EJS par section
-```
+    Projet-CDA/
+    ├── app.js
+    ├── Dockerfile
+    ├── docker-compose.yml
+    ├── database/
+    │   ├── db.js
+    │   └── seed.sql
+    ├── modules/
+    │   └── dab.js
+    ├── routes/
+    │   └── api.js
+    ├── public/
+    │   ├── css/style.css
+    │   └── images/produits/
+    └── views/
+        ├── partials/
+        └── pages/
 
----
+------------------------------------------------------------------------
 
 ## Fonctionnalités
 
 ### Espace public
-- Page d'accueil avec vidéo hero en arrière-plan
-- Catalogue boutique groupé par catégorie, ordre personnalisé
-- Fiche produit avec stock en temps réel et badge "Rupture de stock"
-- Simulateur DAB — répartition optimale en coupures (euros/dollars)
+
+-   Page d'accueil avec vidéo hero
+-   Catalogue groupé par catégorie
+-   Fiche produit avec gestion du stock en temps réel
+-   Badge automatique "Rupture de stock"
+-   Simulateur DAB (répartition optimale en coupures)
 
 ### Authentification
-- Inscription client avec hachage SHA256 du mot de passe
-- Connexion unifiée gestionnaire / client par email
-- Sessions Express avec middleware de protection par rôle
+
+-   Inscription client avec hachage SHA256
+-   Connexion unifiée gestionnaire / client
+-   Middleware de protection par rôle
 
 ### Espace client
-- Panier session — ajout, modification de quantité, suppression
-- Confirmation de commande avec vérification du stock
-- Historique des commandes avec statut
-- Annulation de commande (statut "En cours" uniquement) avec restauration automatique du stock
+
+-   Panier en session
+-   Confirmation de commande avec contrôle du stock
+-   Historique des commandes
+-   Annulation conditionnelle avec restauration automatique du stock
 
 ### Dashboard gestionnaire
-- Statistiques globales avec chiffre d'affaires
-- Graphiques interactifs : ventes par catégorie, commandes par statut, alertes stock faible
-- CRUD produits avec modification du stock inline
-- Gestion des clients et des gestionnaires
-- Gestion des commandes avec détail dépliable et changement de statut
-- Rapports d'analyse : top produits, clients fidèles, annulations
-- Restauration automatique du stock lors de l'annulation d'une commande
 
----
+-   Statistiques globales (chiffre d'affaires, volumes)
+-   Graphiques interactifs
+-   CRUD produits
+-   Gestion des clients et gestionnaires
+-   Gestion des commandes
+-   Rapports d'analyse (top produits, clients fidèles, annulations)
+
+------------------------------------------------------------------------
 
 ## API REST
 
-| Méthode | Route | Description |
-|---|---|---|
-| GET | `/api/produits` | Liste des produits (`?categorie=` optionnel) |
-| GET | `/api/produits/:id` | Détail d'un produit |
-| GET | `/api/categories` | Liste des catégories |
-| POST | `/api/produits` | Créer un produit |
-| PUT | `/api/produits/:id` | Modifier un produit |
-| DELETE | `/api/produits/:id` | Supprimer un produit |
+  Méthode   Route               Description
+  --------- ------------------- ----------------------
+  GET       /api/produits       Liste des produits
+  GET       /api/produits/:id   Détail d'un produit
+  GET       /api/categories     Liste des catégories
+  POST      /api/produits       Créer un produit
+  PUT       /api/produits/:id   Modifier un produit
+  DELETE    /api/produits/:id   Supprimer un produit
 
----
+------------------------------------------------------------------------
 
 ## Comptes de test
 
 ### Gestionnaire
-| Email | Mot de passe |
-|---|---|
-| admin@admin.com | admin |
+
+  Email             Mot de passe
+  ----------------- --------------
+  admin@admin.com   admin
 
 ### Clients
-| Email | Mot de passe |
-|---|---|
-| sophie.dupont@gmail.com | password123 |
-| lucas.martin@gmail.com | motdepasse |
-| emma.bernard@gmail.com | test1234 |
 
----
+  Email                     Mot de passe
+  ------------------------- --------------
+  sophie.dupont@gmail.com   password123
+  lucas.martin@gmail.com    motdepasse
+  emma.bernard@gmail.com    test1234
+
+------------------------------------------------------------------------
 
 ## Modèle de données
 
-```
-Gestionnaires  (Id, Nom, Prenom, Email, Mot_de_passe, Role, Date_de_creation)
-Clients        (ID_client, Nom, Prenom, Email, Telephone, Adresse, Ville, CodePostal, Pays, Date_inscription, Mot_de_passe)
-Categories     (ID_categorie, nom)
-Produits       (ID_produit, Reference, Nom_produit, Prix, Taille_produit, ID_categorie, image)
-Stock          (ID_stock, Quantite, Date_derniere_maj, ID_produit)
-Commande       (ID_commande, Date_commande, Statut_commande, ID_client)
-Vendu          (ID_vendu, ID_produit, ID_commande, Quantite)
-```
+-   Gestionnaires\
+-   Clients\
+-   Categories\
+-   Produits\
+-   Stock\
+-   Commande\
+-   Vendu
 
----
+Relations assurées par clés étrangères (InnoDB).
+
+------------------------------------------------------------------------
 
 ## Sécurité
 
-- Mots de passe clients hachés en SHA256 via le module `crypto` natif Node.js
-- Protection des routes par middleware selon le rôle (`requireGestionnaire`, `requireClient`, `requireAuth`)
-- Validation des stocks avant confirmation de commande
-- Sessions sécurisées avec `express-session`
+-   Hachage SHA256 des mots de passe
+-   Protection des routes par middleware selon le rôle
+-   Validation du stock avant confirmation de commande
+-   Sessions sécurisées via express-session
+-   Isolation des services via Docker
 
----
+------------------------------------------------------------------------
 
 ## Auteur
 
-**Anthony** — Projet CDA  
-GitHub : [@antho4242](https://github.com/antho4242)
+Anthony Valour\
+Projet CDA --- Concepteur Développeur d'Applications\
+GitHub : https://github.com/antho4242
