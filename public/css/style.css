@@ -744,3 +744,24 @@ small { font-size: 12px; color: var(--text-muted); margin-top: 4px; display: blo
   .nav__brand { display: none; }
   .panier-item { grid-template-columns: 1fr; }
 }
+/*  Icônes inline  */
+.nav__link, .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat-card__icon {
+  color: var(--text-muted);
+  display: flex;
+}
+
+.stat-card__icon svg {
+  stroke: var(--text-muted);
+}
+
+
+.feature-card__icon svg {
+  color: var(--accent);
+  stroke: var(--accent);
+}
