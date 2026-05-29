@@ -5,7 +5,6 @@
     <a class="nav__link" href="/"><%- icon('home', 16) %> Accueil</a>
     <a class="nav__link" href="/boutique"><%- icon('store', 16) %> Boutique</a>
     <a class="nav__link" href="/dab"><%- icon('dab', 16) %> DAB</a>
-    <a class="nav__link nav__link--danger" href="/erreur"><%- icon('error', 16) %> Erreur</a>
 
     <% if (user && user.role === 'gestionnaire') { %>
       <a class="nav__link" href="/dashboard"><%- icon('dashboard', 16) %> Dashboard</a>
