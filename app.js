@@ -60,6 +60,10 @@ function icon(name, size = 18) {
 app.get('/images/hero-bg.mp4', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'images', 'hero-bg.mp4'));
 });
+app.get('/images/maroquinerie.css', (req, res) => {
+  res.type('text/css');
+  res.sendFile(path.join(__dirname, 'public', 'images', 'maroquinerie.css'));
+});
 app.use(express.static(path.join(__dirname, "public"), { index: false }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
