@@ -102,7 +102,7 @@ Configuration actuelle :
     ├── routes/
     │   └── api.js
     ├── public/
-    │   ├── css/style.css
+    │   ├── styles/style.css
     │   └── images/produits/
     ├── docs/
     │   └── dossier-supplement.md   # Sections complétées pour le dossier CDA
